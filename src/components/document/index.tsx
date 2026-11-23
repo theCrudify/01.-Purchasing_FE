@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, type ReactNode } from 'react'
-import { CheckCircle2, Download, FileText, MessageSquare, Paperclip, RotateCcw, Send, Trash2, Upload, XCircle } from 'lucide-react'
+import { CheckCircle2, Download, Eye, FileText, MessageSquare, Paperclip, RotateCcw, Send, Trash2, Upload, XCircle } from 'lucide-react'
 import { api, del, post } from '@/lib/api'
 import { useMe } from '@/lib/me'
 import { Badge, Button, Card, ErrorText, Field, Input, Modal, PageHeader, Select, Textarea, fmtDate, fmtDateTime, fmtMoney } from '../ui'
@@ -297,6 +297,7 @@ export function AttachmentPanel({ publicId, readOnly }: { publicId: string; read
   const [rows, setRows] = useState<Att[]>([])
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [previewAtt, setPreviewAtt] = useState<Att | null>(null)
   const load = () =>
     api<{ data: Att[] }>(`/documents/${publicId}/attachments`)
       .then((r) => setRows(r.data))
@@ -322,7 +323,7 @@ export function AttachmentPanel({ publicId, readOnly }: { publicId: string; read
   }
 
   return (
-    <Card title="Lampiran Dokumen (Attachments)" desc="Dokumen pendukung seperti penawaran, BAST, atau faktur.">
+    <Card title="Lampiran Dokumen (Attachments)" desc="Dokumen pendukung seperti penawaran, Faktur Pajak, Surat Jalan, BAST, atau Invoice PDF.">
       <div className="space-y-4">
         {rows.length === 0 ? (
           <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/50 py-6 text-center text-xs text-gray-400">
@@ -332,37 +333,52 @@ export function AttachmentPanel({ publicId, readOnly }: { publicId: string; read
         ) : (
           <ul className="divide-y divide-gray-100 rounded-xl border border-gray-200">
             {rows.map((a) => (
-              <li key={a.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+              <li key={a.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
                 <div className="min-w-0 flex-1">
-                  <a
-                    className="inline-flex items-center gap-1.5 font-semibold text-brand-600 hover:underline"
-                    href={`/api/documents/${publicId}/attachments/${a.id}`}
-                  >
-                    <Download className="h-3.5 w-3.5" />
-                    <span className="truncate">{a.fileName}</span>
-                  </a>
-                  <span className="mt-0.5 block text-xs text-gray-500">
-                    {a.category} · {(a.sizeBytes / 1024).toFixed(0)} KB · {a.createdByName}
+                  <div className="flex items-center gap-2">
+                    <Badge value={a.category} />
+                    <a
+                      className="inline-flex items-center gap-1.5 font-semibold text-brand-600 hover:underline"
+                      href={`/api/documents/${publicId}/attachments/${a.id}`}
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      <span className="truncate">{a.fileName}</span>
+                    </a>
+                  </div>
+                  <span className="mt-1 block text-xs text-gray-500">
+                    {a.description ? `${a.description} · ` : ''}
+                    {(a.sizeBytes / 1024).toFixed(0)} KB · Diunggah oleh {a.createdByName}
                     {a.visibility === 'INTERNAL' ? ' · Internal Only' : ''}
                   </span>
                 </div>
-                {!readOnly && (
+                <div className="flex items-center gap-2">
                   <button
-                    className="rounded-lg border border-error-200 bg-error-50 px-2.5 py-1 text-xs font-semibold text-error-600 hover:bg-error-100"
-                    onClick={async () => {
-                      if (confirm('Hapus lampiran ini?')) {
-                        try {
-                          await del(`/documents/${publicId}/attachments/${a.id}`)
-                          load()
-                        } catch (e) {
-                          setError((e as Error).message)
-                        }
-                      }
-                    }}
+                    type="button"
+                    className="inline-flex items-center gap-1 rounded-lg border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-100"
+                    onClick={() => setPreviewAtt(a)}
                   >
-                    Hapus
+                    <Eye className="h-3.5 w-3.5" />
+                    <span>Preview</span>
                   </button>
-                )}
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      className="rounded-lg border border-error-200 bg-error-50 px-2.5 py-1 text-xs font-semibold text-error-600 hover:bg-error-100"
+                      onClick={async () => {
+                        if (confirm('Hapus lampiran ini?')) {
+                          try {
+                            await del(`/documents/${publicId}/attachments/${a.id}`)
+                            load()
+                          } catch (e) {
+                            setError((e as Error).message)
+                          }
+                        }
+                      }}
+                    >
+                      Hapus
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
@@ -390,7 +406,7 @@ export function AttachmentPanel({ publicId, readOnly }: { publicId: string; read
                   <option value="INTERNAL">Internal Only</option>
                 </Select>
               )}
-              <Input name="description" placeholder="Keterangan singkat" aria-label="Description" />
+              <Input name="description" placeholder="Attachment Detail / Keterangan file" aria-label="Description" />
             </div>
             <div className="flex items-center justify-between">
               <span className="text-[11px] text-gray-400">PDF, PNG, JPG, XLSX, DOCX — Maks. 5 MB</span>
@@ -403,6 +419,37 @@ export function AttachmentPanel({ publicId, readOnly }: { publicId: string; read
         )}
         <ErrorText error={error} />
       </div>
+
+      <Modal
+        open={previewAtt !== null}
+        wide
+        title={previewAtt ? `Preview Lampiran — ${previewAtt.fileName} (${previewAtt.category})` : 'Preview Lampiran'}
+        onClose={() => setPreviewAtt(null)}
+      >
+        {previewAtt && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600">
+              <span>
+                <strong>File:</strong> {previewAtt.fileName} · <strong>Tipe:</strong> {previewAtt.category}
+                {previewAtt.description ? ` · ${previewAtt.description}` : ''}
+              </span>
+              <a
+                href={`/api/documents/${publicId}/attachments/${previewAtt.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="font-semibold text-brand-600 hover:underline"
+              >
+                Buka / Unduh di Tab Baru ↗
+              </a>
+            </div>
+            <iframe
+              src={`/api/documents/${publicId}/attachments/${previewAtt.id}`}
+              title={previewAtt.fileName}
+              className="h-[72vh] w-full rounded-xl border border-gray-200 bg-gray-100"
+            />
+          </div>
+        )}
+      </Modal>
     </Card>
   )
 }
