@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Outfit, Geist_Mono } from 'next/font/google'
 import './globals.css'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const outfit = Outfit({
+  variable: '--font-outfit',
   subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
 })
 
 const geistMono = Geist_Mono({
@@ -13,14 +14,14 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'KPIN — Purchasing & Procurement Portal',
-  description: 'Enterprise Purchasing, Document Approval and Supplier Portal',
+  title: 'KPIN — Purchasing & Supplier Portal | PT Kansai Paint Indonesia',
+  description: 'Enterprise Purchasing, Document Approval and Supplier Portal — PT Kansai Paint Indonesia',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans">{children}</body>
+    <html lang="id" className={`${outfit.variable} ${geistMono.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-gray-50 text-gray-900">{children}</body>
     </html>
   )
 }
