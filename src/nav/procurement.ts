@@ -1,15 +1,32 @@
 import type { NavItem } from './types'
 
-/** Sidebar entries owned by the "procurement" group. */
+/** Sidebar entries owned by the "procurement" & "finance" groups. */
 export const nav: NavItem[] = [
-  { href: '/purchasing/pr', label: 'Purchase Requests (PR)', section: 'Purchasing Documents' },
-  { href: '/purchasing/rfq', label: 'Requests for Quotation (RFQ)', section: 'Purchasing Documents' },
-  { href: '/purchasing/quotations', label: 'Vendor Quotations (QUO)', section: 'Purchasing Documents' },
-  { href: '/purchasing/contracts', label: 'Purchase Contracts (CTR)', section: 'Purchasing Documents' },
-  { href: '/purchasing/po', label: 'Purchase Orders (PO)', section: 'Purchasing Documents' },
-  { href: '/purchasing/gr', label: 'Goods Receipts (GR)', section: 'Purchasing Documents' },
-  { href: '/portal/quotations', label: 'My Quotations', section: 'Procurement', area: 'portal' },
-  { href: '/portal/po', label: 'My Purchase Orders', section: 'Procurement', area: 'portal' },
-  { href: '/portal/contracts', label: 'My Contracts', section: 'Procurement', area: 'portal' },
-  { href: '/portal/receipts', label: 'Delivery & Receipts', section: 'Procurement', area: 'portal' },
+  // Internal Purchasing Documents
+  { section: 'Purchasing Documents', label: 'Purchase Request (PR)', href: '/purchasing/pr' },
+  { section: 'Purchasing Documents', label: 'PR Raw Material', href: '/purchasing/pr-raw-material' },
+  { section: 'Purchasing Documents', label: 'Request for Quotation (RFQ)', href: '/purchasing/rfq' },
+  { section: 'Purchasing Documents', label: 'Vendor Quotations (QUO)', href: '/purchasing/quotations' },
+  { section: 'Purchasing Documents', label: 'Purchase Contracts (CTR)', href: '/purchasing/contracts' },
+  { section: 'Purchasing Documents', label: 'Purchase Orders (PO)', href: '/purchasing/po' },
+  { section: 'Purchasing Documents', label: 'Goods Receipts (GR)', href: '/purchasing/gr' },
+
+  // Cash Advance, Reimbursement & Settlement
+  { section: 'Cash Advance & Reimbursement', label: 'Cash Advance (CA)', href: '/finance/cash-advances' },
+  { section: 'Cash Advance & Reimbursement', label: 'Settlement (STL)', href: '/finance/settlements' },
+  { section: 'Cash Advance & Reimbursement', label: 'Reimbursement (RMB)', href: '/finance/reimbursements' },
+
+  // AP / AR Invoices & Outgoing Payments
+  { section: 'Invoicing & Outgoing Payment', label: 'AP Invoice (INV)', href: '/finance/ap-invoices' },
+  { section: 'Invoicing & Outgoing Payment', label: 'OP AP Invoice (OPAP)', href: '/finance/outgoing-ap' },
+  { section: 'Invoicing & Outgoing Payment', label: 'Outgoing Cash Advance (OPCA)', href: '/finance/outgoing-ca' },
+  { section: 'Invoicing & Outgoing Payment', label: 'Outgoing Reimbursement', href: '/finance/outgoing-reimbursement' },
+  { section: 'Invoicing & Outgoing Payment', label: 'AR Invoice (ARI)', href: '/finance/ar-invoices' },
+
+  // Supplier Portal Documents
+  { section: 'Procurement', label: 'My Quotations', href: '/portal/quotations', area: 'portal' },
+  { section: 'Procurement', label: 'Purchase Orders', href: '/portal/po', area: 'portal' },
+  { section: 'Procurement', label: 'Contracts', href: '/portal/contracts', area: 'portal' },
+  { section: 'Procurement', label: 'Goods Receipts', href: '/portal/receipts', area: 'portal' },
+  { section: 'Procurement', label: 'AP Invoices', href: '/portal/invoices', area: 'portal' },
 ]

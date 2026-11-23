@@ -41,22 +41,28 @@ type ApprovalTask = {
 }
 
 const DOC_TYPES: { code: string; name: string; href: string }[] = [
-  { code: 'PR', name: 'Purchase Request', href: '/purchasing/pr' },
+  { code: 'PR', name: 'Purchase Request & PR Raw Material', href: '/purchasing/pr' },
   { code: 'RFQ', name: 'Request for Quotation', href: '/purchasing/rfq' },
   { code: 'QUO', name: 'Vendor Quotation', href: '/purchasing/quotations' },
   { code: 'CTR', name: 'Purchase Contract', href: '/purchasing/contracts' },
   { code: 'PO', name: 'Purchase Order', href: '/purchasing/po' },
   { code: 'GR', name: 'Goods Receipt', href: '/purchasing/gr' },
+  { code: 'CA', name: 'Cash Advance (Kasbon)', href: '/finance/cash-advances' },
+  { code: 'STL', name: 'Cash Advance Settlement', href: '/finance/settlements' },
+  { code: 'RMB', name: 'Reimbursement Claim', href: '/finance/reimbursements' },
+  { code: 'INV', name: 'AP Invoice (Tagihan Vendor)', href: '/finance/ap-invoices' },
+  { code: 'PAY', name: 'Outgoing Payment (OPAP / OPCA / Outgoing RMB)', href: '/finance/outgoing-ap' },
+  { code: 'ARI', name: 'AR Invoice (Tagihan Customer)', href: '/finance/ar-invoices' },
   { code: 'SVR', name: 'Supplier Verification', href: '/vendors/verifications' },
 ]
 
 const SHORTCUTS = [
-  { href: '/purchasing/pr', title: 'Purchase Requests (PR)', desc: 'Buat & ajukan permintaan pembelian barang/jasa', icon: FileText },
-  { href: '/purchasing/rfq', title: 'Request for Quotation (RFQ)', desc: 'Kirim permintaan penawaran harga ke vendor', icon: FileCheck2 },
-  { href: '/purchasing/po', title: 'Purchase Orders (PO)', desc: 'Terbitkan pesanan pembelian resmi ke supplier', icon: CreditCard },
-  { href: '/vendors', title: 'Vendors & Suppliers', desc: 'Kelola direktori mitra bisnis & kualifikasi vendor', icon: Database },
-  { href: '/approvals', title: 'My Approvals', desc: 'Review and decide pending tasks', icon: UserCheck },
-  { href: '/settings/approval-templates', title: 'Approval Templates', desc: 'Configure workflow rules & steps', icon: Sliders },
+  { href: '/purchasing/pr', title: 'Purchase Request (PR)', desc: 'Permintaan pembelian barang/jasa umum', icon: FileText },
+  { href: '/purchasing/pr-raw-material', title: 'PR Raw Material', desc: 'Permintaan bahan baku produksi & resin', icon: Database },
+  { href: '/finance/cash-advances', title: 'Cash Advance & Settlement', desc: 'Kasbon operasional & pertanggungjawaban (STL)', icon: CreditCard },
+  { href: '/finance/reimbursements', title: 'Reimbursement (RMB)', desc: 'Klaim biaya karyawan & operasional', icon: FileCheck2 },
+  { href: '/finance/ap-invoices', title: 'AP Invoice & OP AP Invoice', desc: 'Tagihan supplier & pembayaran OPAP', icon: ShieldCheck },
+  { href: '/finance/ar-invoices', title: 'AR Invoice (ARI)', desc: 'Penagihan penjualan & piutang customer', icon: Sliders },
 ]
 
 export default function Dashboard() {

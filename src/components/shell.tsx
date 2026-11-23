@@ -7,6 +7,7 @@ import {
   Building2,
   ChevronDown,
   Clock,
+  CreditCard,
   Database,
   FileCheck,
   FileText,
@@ -15,11 +16,13 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Receipt,
   Search,
   Shield,
   ShoppingCart,
   User,
   UserCheck,
+  Wallet,
   X,
 } from 'lucide-react'
 import { ALL_NAV, type NavItem } from '@/nav'
@@ -34,6 +37,10 @@ function getSectionIcon(section: string) {
     case 'Purchasing Documents':
     case 'Procurement':
       return <ShoppingCart className="h-4 w-4" />
+    case 'Cash Advance & Reimbursement':
+      return <Wallet className="h-4 w-4" />
+    case 'Invoicing & Outgoing Payment':
+      return <Receipt className="h-4 w-4" />
     case 'Vendors & Partners':
       return <Building2 className="h-4 w-4" />
     case 'Workflow & Approval':

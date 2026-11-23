@@ -37,12 +37,23 @@ const SUBMIT_PATH_BY_DOCTYPE: Record<string, string> = {
   PO: '/po',
   GR: '/gr',
   SVR: '/verifications',
+  CA: '/cash-advances',
+  STL: '/settlements',
+  RMB: '/reimbursements',
+  INV: '/ap-invoices',
+  PAY: '/payments',
+  ARI: '/ar-invoices',
 }
 
 const LINES_PATH_BY_DOCTYPE: Record<string, string> = {
   PR: '/pr',
   RFQ: '/rfq',
   PO: '/po',
+  CA: '/cash-advances',
+  STL: '/settlements',
+  RMB: '/reimbursements',
+  INV: '/ap-invoices',
+  ARI: '/ar-invoices',
 }
 
 export default function DocumentDetailPage({ params }: { params: Promise<{ id: string }> }) {
