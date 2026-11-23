@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   Bell,
+  Building2,
   ChevronDown,
   Clock,
   Database,
@@ -16,6 +17,7 @@ import {
   Menu,
   Search,
   Shield,
+  ShoppingCart,
   User,
   UserCheck,
   X,
@@ -29,6 +31,11 @@ function getSectionIcon(section: string) {
   switch (section) {
     case 'Overview':
       return <LayoutDashboard className="h-4 w-4" />
+    case 'Purchasing Documents':
+    case 'Procurement':
+      return <ShoppingCart className="h-4 w-4" />
+    case 'Vendors & Partners':
+      return <Building2 className="h-4 w-4" />
     case 'Workflow & Approval':
       return <FileCheck className="h-4 w-4" />
     case 'Master Data':

@@ -40,23 +40,23 @@ type ApprovalTask = {
   docStatus: string
 }
 
-const DOC_TYPES: { code: string; name: string }[] = [
-  { code: 'PR', name: 'Purchase Request' },
-  { code: 'RFQ', name: 'Request for Quotation' },
-  { code: 'QUO', name: 'Vendor Quotation' },
-  { code: 'CTR', name: 'Purchase Contract' },
-  { code: 'PO', name: 'Purchase Order' },
-  { code: 'GR', name: 'Goods Receipt' },
-  { code: 'SVR', name: 'Supplier Verification' },
+const DOC_TYPES: { code: string; name: string; href: string }[] = [
+  { code: 'PR', name: 'Purchase Request', href: '/purchasing/pr' },
+  { code: 'RFQ', name: 'Request for Quotation', href: '/purchasing/rfq' },
+  { code: 'QUO', name: 'Vendor Quotation', href: '/purchasing/quotations' },
+  { code: 'CTR', name: 'Purchase Contract', href: '/purchasing/contracts' },
+  { code: 'PO', name: 'Purchase Order', href: '/purchasing/po' },
+  { code: 'GR', name: 'Goods Receipt', href: '/purchasing/gr' },
+  { code: 'SVR', name: 'Supplier Verification', href: '/vendors/verifications' },
 ]
 
 const SHORTCUTS = [
-  { href: '/approvals', title: 'My Approvals', desc: 'Review and decide pending tasks', icon: FileCheck2 },
+  { href: '/purchasing/pr', title: 'Purchase Requests (PR)', desc: 'Buat & ajukan permintaan pembelian barang/jasa', icon: FileText },
+  { href: '/purchasing/rfq', title: 'Request for Quotation (RFQ)', desc: 'Kirim permintaan penawaran harga ke vendor', icon: FileCheck2 },
+  { href: '/purchasing/po', title: 'Purchase Orders (PO)', desc: 'Terbitkan pesanan pembelian resmi ke supplier', icon: CreditCard },
+  { href: '/vendors', title: 'Vendors & Suppliers', desc: 'Kelola direktori mitra bisnis & kualifikasi vendor', icon: Database },
+  { href: '/approvals', title: 'My Approvals', desc: 'Review and decide pending tasks', icon: UserCheck },
   { href: '/settings/approval-templates', title: 'Approval Templates', desc: 'Configure workflow rules & steps', icon: Sliders },
-  { href: '/settings/delegations', title: 'Delegations & Backups', desc: 'Manage temporary authority transfer', icon: UserCheck },
-  { href: '/master/items', title: 'Master Items', desc: 'Manage catalog items, UoMs & categories', icon: Database },
-  { href: '/master/budgets', title: 'Department Budgets', desc: 'Fiscal budget limits & exchange rates', icon: CreditCard },
-  { href: '/admin/users', title: 'Users & Roles', desc: 'Manage accounts, employees & permissions', icon: ShieldCheck },
 ]
 
 export default function Dashboard() {
@@ -103,17 +103,23 @@ export default function Dashboard() {
         title={`Dashboard${me ? ` — ${me.displayName}` : ''}`}
         subtitle="Overview of your pending approval tasks, procurement document pipeline, and system notifications."
         actions={
-          <div className="flex items-center gap-2">
-            <Link href="/approvals">
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href="/purchasing/pr">
               <Button>
-                <FileCheck2 className="h-4 w-4" />
-                <span>Approval Inbox ({d?.pendingApprovals ?? 0})</span>
+                <FileText className="h-4 w-4" />
+                <span>+ Buat Purchase Request</span>
               </Button>
             </Link>
-            <Link href="/settings/approval-templates">
+            <Link href="/purchasing/po">
               <Button variant="secondary">
-                <Sliders className="h-4 w-4" />
-                <span>Workflow Rules</span>
+                <CreditCard className="h-4 w-4" />
+                <span>Purchase Orders</span>
+              </Button>
+            </Link>
+            <Link href="/approvals">
+              <Button variant="secondary">
+                <FileCheck2 className="h-4 w-4" />
+                <span>Approvals ({d?.pendingApprovals ?? 0})</span>
               </Button>
             </Link>
           </div>
@@ -296,7 +302,11 @@ export default function Dashboard() {
                             {dt.code}
                           </span>
                         </td>
-                        <td className="px-4 py-3 font-medium text-gray-800">{dt.name}</td>
+                        <td className="px-4 py-3 font-medium text-gray-800">
+                          <Link href={dt.href} className="hover:text-brand-600 hover:underline">
+                            {dt.name}
+                          </Link>
+                        </td>
                         <td className="px-4 py-3 text-center text-xs font-medium text-gray-600">{draft}</td>
                         <td className="px-4 py-3 text-center text-xs font-medium text-gray-600">{pending}</td>
                         <td className="px-4 py-3 text-center text-xs font-medium text-gray-600">{approved}</td>

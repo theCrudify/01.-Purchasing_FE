@@ -267,14 +267,14 @@ export function PageHeader({
     segments[0] === 'master'
       ? 'Master Data'
       : segments[0] === 'admin'
-      ? 'Administration'
-      : segments[0] === 'settings'
-      ? 'Workflow & Approval'
-      : segments[0] === 'documents'
-      ? 'Documents'
-      : segments[0] === 'portal'
-      ? 'Supplier Portal'
-      : 'Overview'
+        ? 'Administration'
+        : segments[0] === 'settings'
+          ? 'Workflow & Approval'
+          : segments[0] === 'documents'
+            ? 'Documents'
+            : segments[0] === 'portal'
+              ? 'Supplier Portal'
+              : 'Overview'
 
   return (
     <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -339,9 +339,9 @@ export const fmtMoney = (v: unknown, ccy?: string) =>
   v == null || v === ''
     ? ''
     : `${ccy ? ccy + ' ' : ''}${Number(v).toLocaleString('id-ID', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}`
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`
 
 export const fmtDate = (v: unknown) => (v ? new Date(String(v)).toLocaleDateString('id-ID') : '')
 export const fmtDateTime = (v: unknown) => (v ? new Date(String(v)).toLocaleString('id-ID') : '')
