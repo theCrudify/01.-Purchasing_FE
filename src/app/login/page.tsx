@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail, Shield } from 'lucide-react'
+import { AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { AuthLayout } from '@/components/auth-layout'
 import { api } from '@/lib/api'
 
@@ -15,7 +15,8 @@ function LoginForm() {
   const [busy, setBusy] = useState(false)
   const [sso, setSso] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [portalMode, setPortalMode] = useState(false)
+  const [isVendor, setIsVendor] = useState(false)
+  const [remember, setRemember] = useState(false)
 
   useEffect(() => {
     api('/auth/providers')
@@ -42,24 +43,32 @@ function LoginForm() {
     }
   }
 
+  const themeColor = isVendor ? '#1e3a8a' : '#c3002f' // Navy for Vendor, Kansai Red for Internal
+
   return (
-    <div className="space-y-5">
-      {/* Role / Workspace selector */}
+    <div className="space-y-6">
+      {/* Workspace Role Switcher */}
       <div className="flex rounded-xl bg-slate-100 p-1 text-xs font-semibold">
         <button
           type="button"
-          onClick={() => setPortalMode(false)}
-          className={`flex-1 rounded-lg py-2 transition cursor-pointer ${
-            !portalMode ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'
+          onClick={() => {
+            setIsVendor(false)
+            setError('')
+          }}
+          className={`flex-1 rounded-lg py-2.5 transition cursor-pointer ${
+            !isVendor ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
           }`}
         >
-          Internal Staff
+          Company KPIN (Internal)
         </button>
         <button
           type="button"
-          onClick={() => setPortalMode(true)}
-          className={`flex-1 rounded-lg py-2 transition cursor-pointer ${
-            portalMode ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'
+          onClick={() => {
+            setIsVendor(true)
+            setError('')
+          }}
+          className={`flex-1 rounded-lg py-2.5 transition cursor-pointer ${
+            isVendor ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
           }`}
         >
           Vendor & Supplier
@@ -69,59 +78,46 @@ function LoginForm() {
       {error && (
         <div
           role="alert"
-          className="flex items-start gap-2.5 rounded-xl border border-rose-200 bg-rose-50/90 p-3 text-xs text-rose-700"
+          className="flex items-start gap-2.5 rounded-xl border border-rose-200 bg-rose-50/90 p-3.5 text-xs text-rose-700"
         >
           <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
           <div className="min-w-0 flex-1 font-medium">{error}</div>
         </div>
       )}
 
-      <form onSubmit={submit} className="space-y-4">
+      <form onSubmit={submit} className="space-y-5">
         <div className="space-y-1.5">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
-            Work Email Address
+          <label className="block text-xs font-semibold text-slate-700">
+            {isVendor ? 'Vendor Code or Email' : 'Email or Employee NIK'}{' '}
+            <span className="text-rose-600 font-bold">*</span>
           </label>
-          <div className="relative">
-            <Mail className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
-            <input
-              name="email"
-              type="email"
-              required
-              autoComplete="username"
-              placeholder={portalMode ? 'vendor@supplier.com' : 'employee@company.com'}
-              aria-label="Email"
-              className="w-full rounded-xl border border-slate-300 bg-white pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-xs transition-colors focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-            />
-          </div>
+          <input
+            name="email"
+            type="text"
+            required
+            autoComplete="username"
+            placeholder={isVendor ? 'e.g. SM0111 or vendor@company.com' : 'e.g. admin@kpin.local or NIK'}
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-2xs transition-colors focus:border-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+          />
         </div>
 
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
-              Password
-            </label>
-            <Link
-              className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
-              href="/forgot-password"
-            >
-              Forgot password?
-            </Link>
-          </div>
+          <label className="block text-xs font-semibold text-slate-700">
+            Kata Sandi / Password <span className="text-rose-600 font-bold">*</span>
+          </label>
           <div className="relative">
-            <Lock className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
             <input
               name="password"
               type={showPassword ? 'text' : 'password'}
               required
               autoComplete="current-password"
-              placeholder="••••••••••••"
-              aria-label="Password"
-              className="w-full rounded-xl border border-slate-300 bg-white pl-10 pr-10 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-xs transition-colors focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              placeholder="Masukkan kata sandi Anda"
+              className="w-full rounded-xl border border-slate-300 bg-white pl-4 pr-11 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-2xs transition-colors focus:border-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-2.5 rounded-md p-1 text-slate-400 hover:text-slate-600 cursor-pointer"
+              className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 cursor-pointer"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -129,62 +125,77 @@ function LoginForm() {
           </div>
         </div>
 
+        <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="rounded border-slate-300 text-rose-600 focus:ring-rose-500"
+            />
+            <span>Biarkan saya tetap masuk</span>
+          </label>
+          <Link
+            className="font-semibold text-rose-600 hover:text-rose-700 hover:underline"
+            href="/forgot-password"
+          >
+            Lupa kata sandi?
+          </Link>
+        </div>
+
         <button
+          type="submit"
           disabled={busy}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/30 hover:bg-indigo-700 active:scale-[0.99] disabled:opacity-50 transition-all cursor-pointer"
+          style={{ backgroundColor: themeColor }}
+          className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white shadow-md hover:brightness-95 active:scale-[0.99] disabled:opacity-50 transition-all cursor-pointer"
         >
           {busy ? (
             <span className="flex items-center gap-2">
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              <span>Authenticating…</span>
+              <span>Sedang Masuk…</span>
             </span>
           ) : (
-            <>
-              <span>Sign In as {portalMode ? 'Vendor' : 'Employee'}</span>
-              <ArrowRight className="h-4 w-4" />
-            </>
+            <span>Masuk / Sign In</span>
           )}
         </button>
       </form>
 
-      {/* Entra ID SSO */}
-      {sso && !portalMode && (
-        <div className="pt-2">
+      {/* Microsoft SSO (for Internal Staff) */}
+      {sso && !isVendor && (
+        <div>
           <div className="relative mb-4 flex items-center justify-center">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-slate-200" />
             </div>
             <span className="relative bg-white px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-              Or sign in with SSO
+              Atau masuk dengan akun kantor
             </span>
           </div>
           <a
             href={`/api/auth/entra/start?next=${encodeURIComponent(safeNext(sp.get('next')) ?? '/dashboard')}`}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50/60 py-2.5 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-100 hover:border-slate-300 transition"
+            className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white py-2.5 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition"
           >
-            {/* Microsoft 4-square colored icon */}
             <svg className="h-4 w-4" viewBox="0 0 21 21">
               <rect x="1" y="1" width="9" height="9" fill="#f25022" />
               <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
               <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
               <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
             </svg>
-            <span>Microsoft Entra ID</span>
+            <span>Microsoft Entra ID (Single Sign-On)</span>
           </a>
         </div>
       )}
 
       {/* Vendor Onboarding Link */}
-      <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 text-center">
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-center">
         <p className="text-xs text-slate-600">
-          Want to become an approved supplier or vendor?
+          Belum terdaftar sebagai rekanan / vendor resmi PT Kansai Paint Indonesia?
         </p>
         <Link
           href="/portal/register"
-          className="mt-1 inline-flex items-center gap-1.5 text-xs font-bold text-indigo-700 hover:text-indigo-900 hover:underline"
+          className="mt-1.5 inline-block text-xs font-bold text-rose-600 hover:text-rose-800 hover:underline"
         >
-          <span>Register new business partner account</span>
-          <ArrowRight className="h-3.5 w-3.5" />
+          Registrasi Rekanan Baru (Vendor Registration) →
         </Link>
       </div>
     </div>
@@ -194,11 +205,11 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <AuthLayout
-      title="Welcome to KPIN"
-      subtitle="Sign in with your authorized credentials to access your procurement workspace."
-      badge="Secure Enterprise Gateway"
+      title="Sign In — Portal KPIN"
+      subtitle="Selamat datang di sistem Purchasing & Supplier Portal PT Kansai Paint Indonesia."
+      themeColor="#c3002f"
     >
-      <Suspense fallback={<div className="py-12 text-center text-sm text-slate-500">Loading sign in form…</div>}>
+      <Suspense fallback={<div className="py-12 text-center text-sm text-slate-500">Memuat formulir login…</div>}>
         <LoginForm />
       </Suspense>
     </AuthLayout>
