@@ -41,7 +41,7 @@ export default function RolesPage() {
           required: true,
           createOnly: true,
           options: [
-            { value: 'INTERNAL', label: 'Internal Staff (KPIN)' },
+            { value: 'INTERNAL', label: 'Internal Staff' },
             { value: 'BP', label: 'Vendor / Supplier Portal' },
           ],
         },
