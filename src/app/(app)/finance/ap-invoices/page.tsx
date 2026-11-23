@@ -140,10 +140,10 @@ export default function ApInvoicesPage() {
         title="AP Invoices (INV)"
         subtitle="Record and verify supplier accounts payable invoices, down payment invoices, and tax invoices (Faktur Pajak) for OPAP disbursement."
         actions={
-          <Button onClick={() => setOpen(true)}>
+          <Link href="/finance/ap-invoices/new"><Button>
             <Plus className="h-4 w-4" />
             <span>New AP Invoice</span>
-          </Button>
+          </Button></Link>
         }
       />
 
@@ -157,7 +157,7 @@ export default function ApInvoicesPage() {
             header: 'INV Number',
             sortable: true,
             render: (r) => (
-              <Link className="font-semibold text-brand-600 hover:underline" href={`/documents/${r.id}`}>
+              <Link className="font-semibold text-brand-600 hover:underline" href={`/finance/ap-invoices/${r.id}`}>
                 {r.docNo ?? '(Draft)'}
               </Link>
             ),
@@ -190,11 +190,11 @@ export default function ApInvoicesPage() {
             render: (r) => (
               <div className="flex items-center gap-1.5">
                 <Link
-                  href={`/documents/${r.id}`}
+                  href={`/finance/ap-invoices/${r.id}`}
                   className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
                 >
                   <Eye className="h-3.5 w-3.5" />
-                  <span>Open</span>
+                  <span>Detail / Edit</span>
                 </Link>
                 {['DRAFT', 'SUBMITTED', 'RETURNED'].includes(r.status) && (
                   <button

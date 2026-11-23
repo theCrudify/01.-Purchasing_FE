@@ -1,10 +1,11 @@
 'use client'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { FileCheck2, Pencil, Plus } from 'lucide-react'
+import { Eye, FileCheck2, Pencil, Plus } from 'lucide-react'
 import { DataTable } from '@/components/data-table'
-import { AutoForm, type FieldDef } from '@/components/form'
-import { Badge, Button, ErrorText, Modal, PageHeader, Select } from '@/components/ui'
-import { patch, post } from '@/lib/api'
+import { Badge, Button, ErrorText, PageHeader, Select } from '@/components/ui'
+import { post } from '@/lib/api'
 import { useList } from '@/lib/use-list'
 
 type BpRow = {
@@ -23,60 +24,22 @@ type BpRow = {
   operationalStatus: string
 }
 
-const fields: FieldDef[] = [
-  { name: 'bpCode', label: 'Vendor Code (Optional — auto-generated if empty)', createOnly: true },
-  {
-    name: 'entityType',
-    label: 'Entity Type',
-    type: 'select',
-    required: true,
-    options: [
-      { value: 'COMPANY', label: 'Company (PT / CV / Corp)' },
-      { value: 'INDIVIDUAL', label: 'Individual' },
-    ],
-  },
-  { name: 'legalName', label: 'Legal Company Name', required: true },
-  { name: 'tradeName', label: 'Trade / Brand Name' },
-  { name: 'taxId', label: 'Tax ID / NPWP (16 digits)' },
-  { name: 'businessRegNo', label: 'Business Reg. No. (NIB)' },
-  { name: 'email', label: 'Official Email', type: 'email' },
-  { name: 'phone', label: 'Phone Number' },
-  {
-    name: 'defaultCurrencyCode',
-    label: 'Default Currency',
-    type: 'select',
-    options: ['IDR', 'USD', 'JPY', 'EUR', 'SGD'].map((c) => ({ value: c, label: c })),
-  },
-  {
-    name: 'paymentTermId',
-    label: 'Default Payment Term',
-    type: 'lookup',
-    lookup: { path: '/payment-terms', label: (r) => `${r.code} — ${r.name}`, params: { isActive: 'true' } },
-  },
-  {
-    name: 'operationalStatus',
-    label: 'Operational Status',
-    type: 'select',
-    options: ['ACTIVE', 'INACTIVE', 'SUSPENDED', 'BLACKLISTED'].map((s) => ({ value: s, label: s })),
-  },
-]
-
 export default function VendorsPage() {
+  const router = useRouter()
   const [opStatus, setOpStatus] = useState('')
   const list = useList<BpRow>('/vendors', 'legalName:asc', { operationalStatus: opStatus || undefined })
-  const [editing, setEditing] = useState<BpRow | 'new' | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const createVerification = async (bp: BpRow) => {
     setError(null)
     try {
-      await post('/verifications', {
+      const res = await post<{ data: { id: string } }>('/verifications', {
         bpId: bp.id,
-        requestType: 'REVERIFICATION',
+        requestType: 'PERIODIC_REVIEW',
         title: `Vendor Verification — ${bp.legalName}`,
         remarks: `Periodic compliance verification for ${bp.bpCode ?? bp.legalName}`,
       })
-      alert(`Supplier Verification (SVR) created for ${bp.legalName}. View it under Supplier Verifications.`)
+      router.push(`/vendors/verifications/${res.data.id}`)
     } catch (e) {
       setError((e as Error).message)
     }
@@ -88,10 +51,12 @@ export default function VendorsPage() {
         title="Vendors / Business Partners"
         subtitle="Manage registered suppliers, legal tax identifiers, default payment terms, and operational status."
         actions={
-          <Button onClick={() => setEditing('new')}>
-            <Plus className="h-4 w-4" />
-            <span>New Vendor</span>
-          </Button>
+          <Link href="/vendors/new">
+            <Button>
+              <Plus className="h-4 w-4" />
+              <span>New Vendor</span>
+            </Button>
+          </Link>
         }
       />
 
@@ -105,9 +70,12 @@ export default function VendorsPage() {
             header: 'Vendor Code',
             sortable: true,
             render: (r) => (
-              <span className="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-2 py-0.5 font-mono text-xs font-semibold text-gray-800">
+              <Link
+                href={`/vendors/${r.id}`}
+                className="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-2 py-0.5 font-mono text-xs font-semibold text-brand-600 hover:underline"
+              >
                 {r.bpCode ?? '—'}
-              </span>
+              </Link>
             ),
           },
           {
@@ -116,7 +84,9 @@ export default function VendorsPage() {
             sortable: true,
             render: (r) => (
               <div>
-                <div className="font-semibold text-gray-900">{r.legalName}</div>
+                <Link href={`/vendors/${r.id}`} className="font-semibold text-gray-900 hover:text-brand-600 hover:underline">
+                  {r.legalName}
+                </Link>
                 {r.email && <div className="text-xs text-gray-500">{r.email}</div>}
               </div>
             ),
@@ -136,14 +106,13 @@ export default function VendorsPage() {
             header: 'Actions',
             render: (r) => (
               <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setEditing(r)}
+                <Link
+                  href={`/vendors/${r.id}`}
                   className="inline-flex items-center gap-1 rounded-lg border border-brand-200 bg-brand-50 px-2.5 py-1.5 text-xs font-semibold text-brand-600 hover:bg-brand-100"
                 >
                   <Pencil className="h-3.5 w-3.5" />
-                  <span>Edit</span>
-                </button>
+                  <span>Detail / Edit</span>
+                </Link>
                 <button
                   type="button"
                   onClick={() => createVerification(r)}
@@ -168,7 +137,7 @@ export default function VendorsPage() {
             aria-label="Operational status filter"
           >
             <option value="">All Statuses</option>
-            {['ACTIVE', 'INACTIVE', 'SUSPENDED', 'BLACKLISTED'].map((s) => (
+            {['ACTIVE', 'INACTIVE', 'ON_HOLD', 'BLACKLISTED'].map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>
@@ -176,28 +145,6 @@ export default function VendorsPage() {
           </Select>
         }
       />
-
-      <Modal
-        open={editing !== null}
-        title={editing === 'new' ? 'Register New Vendor / Business Partner' : 'Edit Vendor'}
-        onClose={() => setEditing(null)}
-      >
-        <AutoForm
-          fields={fields}
-          editing={editing !== 'new'}
-          initial={
-            editing && editing !== 'new'
-              ? editing
-              : { entityType: 'COMPANY', defaultCurrencyCode: 'IDR', operationalStatus: 'ACTIVE', isSupplier: true }
-          }
-          onSubmit={async (v) => {
-            if (editing === 'new') await post('/vendors', v)
-            else await patch(`/vendors/${(editing as BpRow).id}`, v)
-            setEditing(null)
-            list.reload()
-          }}
-        />
-      </Modal>
     </div>
   )
 }

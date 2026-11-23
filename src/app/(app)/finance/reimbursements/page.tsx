@@ -123,10 +123,10 @@ export default function ReimbursementsPage() {
         title="Reimbursements (RMB)"
         subtitle="Submit employee or operational expense reimbursement claims with receipt breakdown for approval and Outgoing Reimbursement payment."
         actions={
-          <Button onClick={() => setOpen(true)}>
+          <Link href="/finance/reimbursements/new"><Button>
             <Plus className="h-4 w-4" />
             <span>New Reimbursement</span>
-          </Button>
+          </Button></Link>
         }
       />
 
@@ -140,7 +140,7 @@ export default function ReimbursementsPage() {
             header: 'RMB Number',
             sortable: true,
             render: (r) => (
-              <Link className="font-semibold text-brand-600 hover:underline" href={`/documents/${r.id}`}>
+              <Link className="font-semibold text-brand-600 hover:underline" href={`/finance/reimbursements/${r.id}`}>
                 {r.docNo ?? '(Draft)'}
               </Link>
             ),
@@ -167,11 +167,11 @@ export default function ReimbursementsPage() {
             render: (r) => (
               <div className="flex items-center gap-1.5">
                 <Link
-                  href={`/documents/${r.id}`}
+                  href={`/finance/reimbursements/${r.id}`}
                   className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
                 >
                   <Eye className="h-3.5 w-3.5" />
-                  <span>Open</span>
+                  <span>Detail / Edit</span>
                 </Link>
                 {['DRAFT', 'RETURNED'].includes(r.status) && (
                   <button

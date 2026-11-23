@@ -108,10 +108,10 @@ export default function GoodsReceiptsPage() {
         title="Goods Receipts & Returns (GR)"
         subtitle="Record physical material arrivals, QC inspection quantities, delivery notes (Surat Jalan), and vendor returns."
         actions={
-          <Button onClick={() => setOpen(true)}>
+          <Link href="/purchasing/gr/new"><Button>
             <Plus className="h-4 w-4" />
             <span>New Goods Receipt</span>
-          </Button>
+          </Button></Link>
         }
       />
 
@@ -125,7 +125,7 @@ export default function GoodsReceiptsPage() {
             header: 'GR Number',
             sortable: true,
             render: (r) => (
-              <Link className="font-semibold text-brand-600 hover:underline" href={`/documents/${r.id}`}>
+              <Link className="font-semibold text-brand-600 hover:underline" href={`/purchasing/gr/${r.id}`}>
                 {r.docNo ?? '(Draft)'}
               </Link>
             ),
@@ -143,11 +143,11 @@ export default function GoodsReceiptsPage() {
             render: (r) => (
               <div className="flex items-center gap-1.5">
                 <Link
-                  href={`/documents/${r.id}`}
+                  href={`/purchasing/gr/${r.id}`}
                   className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
                 >
                   <Eye className="h-3.5 w-3.5" />
-                  <span>Open</span>
+                  <span>Detail / Edit</span>
                 </Link>
                 {['DRAFT', 'RETURNED'].includes(r.status) && (
                   <button

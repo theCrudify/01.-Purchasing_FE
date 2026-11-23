@@ -1,10 +1,9 @@
 'use client'
 import Link from 'next/link'
 import { useState } from 'react'
-import { Eye, Plus, Send } from 'lucide-react'
+import { Edit3, Eye, Plus, Send } from 'lucide-react'
 import { DataTable } from '@/components/data-table'
-import { LookupSelect } from '@/components/form'
-import { Badge, Button, ErrorText, Field, Input, Modal, PageHeader, Select, Textarea, fmtDate, fmtMoney } from '@/components/ui'
+import { Badge, Button, ErrorText, PageHeader, Select, fmtDate, fmtMoney } from '@/components/ui'
 import { post } from '@/lib/api'
 import { useList } from '@/lib/use-list'
 
@@ -31,79 +30,32 @@ type PayRow = {
   ownerName: string
 }
 
+const BASE_HREF_BY_PURPOSE: Record<'AP_INVOICE' | 'CASH_ADVANCE' | 'REIMBURSEMENT', string> = {
+  AP_INVOICE: '/finance/outgoing-ap',
+  CASH_ADVANCE: '/finance/outgoing-ca',
+  REIMBURSEMENT: '/finance/outgoing-reimbursement',
+}
+
 export function OutgoingPaymentPageView({
   purpose,
   title,
   subtitle,
   buttonLabel,
-  targetLookupPath,
-  targetFieldLabel,
 }: {
   purpose: 'AP_INVOICE' | 'CASH_ADVANCE' | 'REIMBURSEMENT'
   title: string
   subtitle: string
   buttonLabel: string
-  targetLookupPath: string
-  targetFieldLabel: string
+  targetLookupPath?: string
+  targetFieldLabel?: string
 }) {
+  const baseHref = BASE_HREF_BY_PURPOSE[purpose]
   const [status, setStatus] = useState('')
   const list = useList<PayRow>('/payments', 'createdAt:desc', {
     status: status || undefined,
     purpose,
   })
-  const [open, setOpen] = useState(false)
-  const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const [form, setForm] = useState({
-    title: '',
-    targetDocId: '',
-    companyBankAccountId: null as number | null,
-    paymentMethod: 'TRANSFER',
-    plannedDate: new Date().toISOString().slice(0, 10),
-    amountApplied: '0',
-    bankReference: '',
-    remarks: '',
-  })
-
-  const create = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    if (!form.targetDocId || !form.companyBankAccountId || Number(form.amountApplied) <= 0) {
-      setError(`Please select ${targetFieldLabel}, Company Bank Account, and enter Payment Amount > 0.`)
-      return
-    }
-    setBusy(true)
-    try {
-      await post('/payments', {
-        title: form.title,
-        purpose,
-        targetDocId: form.targetDocId,
-        companyBankAccountId: Number(form.companyBankAccountId),
-        paymentMethod: form.paymentMethod,
-        plannedDate: form.plannedDate,
-        amountApplied: Number(form.amountApplied),
-        bankReference: form.bankReference || null,
-        remarks: form.remarks || null,
-      })
-      setOpen(false)
-      setForm({
-        title: '',
-        targetDocId: '',
-        companyBankAccountId: null,
-        paymentMethod: 'TRANSFER',
-        plannedDate: new Date().toISOString().slice(0, 10),
-        amountApplied: '0',
-        bankReference: '',
-        remarks: '',
-      })
-      list.reload()
-    } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setBusy(false)
-    }
-  }
 
   const submitDoc = async (id: string) => {
     setError(null)
@@ -121,10 +73,12 @@ export function OutgoingPaymentPageView({
         title={title}
         subtitle={subtitle}
         actions={
-          <Button onClick={() => setOpen(true)}>
-            <Plus className="h-4 w-4" />
-            <span>{buttonLabel}</span>
-          </Button>
+          <Link href={`${baseHref}/new`}>
+            <Button>
+              <Plus className="h-4 w-4" />
+              <span>{buttonLabel}</span>
+            </Button>
+          </Link>
         }
       />
 
@@ -138,7 +92,7 @@ export function OutgoingPaymentPageView({
             header: 'Payment No.',
             sortable: true,
             render: (r) => (
-              <Link className="font-semibold text-brand-600 hover:underline" href={`/documents/${r.id}`}>
+              <Link className="font-semibold text-brand-600 hover:underline" href={`${baseHref}/${r.id}`}>
                 {r.docNo ?? '(Draft)'}
               </Link>
             ),
@@ -184,11 +138,20 @@ export function OutgoingPaymentPageView({
             render: (r) => (
               <div className="flex items-center gap-1.5">
                 <Link
-                  href={`/documents/${r.id}`}
+                  href={`${baseHref}/${r.id}`}
                   className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
                 >
-                  <Eye className="h-3.5 w-3.5" />
-                  <span>Open</span>
+                  {['DRAFT', 'RETURNED'].includes(r.status) ? (
+                    <>
+                      <Edit3 className="h-3.5 w-3.5" />
+                      <span>Detail / Edit</span>
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-3.5 w-3.5" />
+                      <span>Detail</span>
+                    </>
+                  )}
                 </Link>
                 {['DRAFT', 'RETURNED'].includes(r.status) && (
                   <button
@@ -224,101 +187,6 @@ export function OutgoingPaymentPageView({
           </Select>
         }
       />
-
-      <Modal open={open} title={buttonLabel} onClose={() => setOpen(false)}>
-        <form onSubmit={create} className="space-y-4">
-          <Field label={targetFieldLabel} required>
-            <LookupSelect
-              path={targetLookupPath}
-              value={form.targetDocId}
-              label={(r) => `${r.docNo ?? '(Draft)'} — ${r.title} (${fmtMoney(r.totalAmount, r.currencyCode)})`}
-              onChange={(v, r) =>
-                setForm({
-                  ...form,
-                  targetDocId: v ?? '',
-                  amountApplied: r?.totalAmount ? String(r.totalAmount) : form.amountApplied,
-                  title: form.title || (r ? `Outgoing Payment — ${r.docNo ?? ''} ${r.title}` : ''),
-                })
-              }
-            />
-          </Field>
-
-          <Field label="Outgoing Payment Title" required>
-            <Input
-              required
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="Payment description"
-            />
-          </Field>
-
-          <Field label="Company Bank / Cash Account" required>
-            <LookupSelect
-              path="/company-banks"
-              value={form.companyBankAccountId}
-              label={(r) => `${r.code} — ${r.name} (${r.accountNo})`}
-              onChange={(v) => setForm({ ...form, companyBankAccountId: v })}
-            />
-          </Field>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Payment Method">
-              <Select value={form.paymentMethod} onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}>
-                <option value="TRANSFER">TRANSFER (Bank Transfer / MUFG)</option>
-                <option value="CASH">CASH (Petty Cash Disbursement)</option>
-                <option value="GIRO">GIRO / Cheque</option>
-              </Select>
-            </Field>
-
-            <Field label="Planned Payment Date" required>
-              <Input
-                type="date"
-                required
-                value={form.plannedDate}
-                onChange={(e) => setForm({ ...form, plannedDate: e.target.value })}
-              />
-            </Field>
-
-            <Field label="Payment Amount (IDR)" required>
-              <Input
-                type="number"
-                min="1"
-                step="any"
-                required
-                value={form.amountApplied}
-                onChange={(e) => setForm({ ...form, amountApplied: e.target.value })}
-              />
-            </Field>
-
-            <Field label="Bank / Transfer Reference No.">
-              <Input
-                value={form.bankReference}
-                onChange={(e) => setForm({ ...form, bankReference: e.target.value })}
-                placeholder="e.g. MUFG-BATCH-001"
-              />
-            </Field>
-          </div>
-
-          <Field label="Remarks">
-            <Textarea
-              rows={2}
-              value={form.remarks}
-              onChange={(e) => setForm({ ...form, remarks: e.target.value })}
-            />
-          </Field>
-
-          <ErrorText error={error} />
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={busy}>
-              {busy ? 'Creating…' : buttonLabel}
-            </Button>
-          </div>
-        </form>
-      </Modal>
     </div>
   )
 }
