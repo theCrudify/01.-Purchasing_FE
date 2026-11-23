@@ -2,41 +2,37 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
+import { CheckCircle2, FileCheck2, Layers, ShieldCheck } from 'lucide-react'
 
 export function AuthLayout({
   title,
   subtitle,
   children,
-  badge = 'System Online',
-  themeColor = '#c3002f', // Kansai Paint Corporate Red
 }: {
   title: string
   subtitle: string
   children: ReactNode
-  badge?: string
-  themeColor?: string
 }) {
   const [online, setOnline] = useState(true)
 
   useEffect(() => {
-    // Ping health endpoint
     fetch('/api/health')
       .then((r) => setOnline(r.ok))
       .catch(() => setOnline(false))
   }, [])
 
   return (
-    <div className="relative min-h-screen bg-white">
-      {/* Floating System Status Badge */}
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+    <div className="relative min-h-screen bg-white text-gray-900">
+      {/* System Status Indicator */}
+      <div className="fixed top-4 right-4 z-50">
         <div
-          className={`flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold shadow-xs ${
+          className={`flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium shadow-theme-xs ${
             online
-              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-              : 'border-rose-200 bg-rose-50 text-rose-700'
+              ? 'border-success-200 bg-success-50 text-success-700'
+              : 'border-error-200 bg-error-50 text-error-700'
           }`}
         >
-          <span className={`h-2 w-2 rounded-full ${online ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+          <span className={`h-2 w-2 rounded-full ${online ? 'bg-success-500' : 'bg-error-500'}`} />
           <span>{online ? 'System Online' : 'System Offline'}</span>
         </div>
       </div>
@@ -44,72 +40,91 @@ export function AuthLayout({
       <div className="flex min-h-screen flex-col lg:flex-row">
         {/* Left Side: Form Container */}
         <div className="flex w-full flex-col justify-between p-6 sm:p-12 lg:w-1/2 lg:p-16">
-          {/* Mobile Logo */}
-          <div className="mb-6 lg:hidden">
-            <Link href="/" className="inline-block">
-              <div className="inline-block rounded-xl border border-slate-200 bg-white p-2.5 shadow-xs">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img width={160} height={34} src="/images/logo/Seiho.png" alt="Kansai Paint Logo" />
+          {/* Brand Logo */}
+          <div className="flex items-center gap-2.5">
+            <Link href="/" className="inline-flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white shadow-theme-xs">
+                <Layers className="h-5 w-5" />
+              </div>
+              <div>
+                <span className="block text-sm font-bold tracking-tight text-gray-900 leading-none">
+                  Procurement Portal
+                </span>
+                <span className="mt-0.5 block text-[11px] font-medium text-gray-500">
+                  Purchasing & Workflow System
+                </span>
               </div>
             </Link>
           </div>
 
-          <div className="mx-auto my-auto w-full max-w-md">
-            <div className="mb-8 space-y-1.5">
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{title}</h1>
-              <p className="text-sm text-slate-500">{subtitle}</p>
+          <div className="mx-auto my-auto w-full max-w-md py-8">
+            <div className="mb-7 space-y-1.5">
+              <h1 className="text-2xl font-bold tracking-tight text-gray-900">{title}</h1>
+              <p className="text-sm text-gray-500">{subtitle}</p>
             </div>
 
             {children}
           </div>
 
-          <div className="mt-8 text-center text-xs text-slate-400">
-            <span>© 2026 PT Kansai Paint Indonesia • KPIN Purchasing & Supplier Portal</span>
+          <div className="text-center text-xs text-gray-400">
+            <span>© 2026 Purchasing & Supplier Portal System</span>
           </div>
         </div>
 
-        {/* Right Side: Kansai Paint Corporate Hero Banner */}
-        <div
-          className="relative hidden w-1/2 items-center justify-center overflow-hidden lg:grid"
-          style={{ backgroundColor: themeColor }}
-        >
-          {/* Top-Right Grid Shape */}
+        {/* Right Side: Uniform Clean Slate/Brand Panel */}
+        <div className="relative hidden w-1/2 items-center justify-center overflow-hidden bg-gray-900 lg:flex">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/shape/grid-01.svg"
-            alt="grid shape"
-            className="pointer-events-none absolute right-0 top-0 w-full max-w-[360px] opacity-40 select-none"
+            alt=""
+            className="pointer-events-none absolute right-0 top-0 w-full max-w-[360px] opacity-25 select-none"
           />
-
-          {/* Bottom-Left Grid Shape (Rotated 180) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/shape/grid-01.svg"
-            alt="grid shape"
-            className="pointer-events-none absolute bottom-0 left-0 w-full max-w-[360px] rotate-180 opacity-40 select-none"
+            alt=""
+            className="pointer-events-none absolute bottom-0 left-0 w-full max-w-[360px] rotate-180 opacity-25 select-none"
           />
 
-          {/* Center Brand Showcase */}
-          <div className="relative z-10 flex flex-col items-center max-w-sm px-6 text-center">
-            <div className="mb-6 rounded-2xl bg-white p-5 shadow-2xl transition-transform hover:scale-105">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                width={240}
-                height={50}
-                src="/images/logo/Seiho.png"
-                alt="PT Kansai Paint Indonesia"
-                className="h-auto w-auto"
-              />
+          <div className="relative z-10 max-w-md px-8 space-y-6">
+            <div className="inline-flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs font-medium text-gray-200 backdrop-blur-xs">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-brand-600 text-white">
+                <Layers className="h-3.5 w-3.5" />
+              </div>
+              <span>Integrated Procurement Suite</span>
             </div>
-            <h2 className="text-xl font-bold tracking-tight text-white">
-              PT Kansai Paint Indonesia
-            </h2>
-            <p className="mt-2 text-xs font-medium uppercase tracking-widest text-white/80">
-              Purchasing & Supplier Portal Ecosystem
-            </p>
-            <div className="mt-6 flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs text-white backdrop-blur-xs">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              <span>Direct SAP Integration & Compliance Verified</span>
+
+            <div className="space-y-2.5">
+              <h2 className="text-2xl font-bold tracking-tight text-white">
+                Streamlined Purchasing & Approval Governance
+              </h2>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                Manage purchase requests, multi-level approval workflows, master data, and supplier onboarding in a unified workspace.
+              </p>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5">
+                <FileCheck2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
+                <div className="text-xs">
+                  <p className="font-semibold text-white">Automated Approval Engine</p>
+                  <p className="mt-0.5 text-gray-400">Configurable rules by department, budget threshold, and purchase class.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
+                <div className="text-xs">
+                  <p className="font-semibold text-white">Complete Audit & Access Control</p>
+                  <p className="mt-0.5 text-gray-400">Role-based permissions, delegation tracking, and full change history.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
+                <div className="text-xs">
+                  <p className="font-semibold text-white">Unified Supplier Portal</p>
+                  <p className="mt-0.5 text-gray-400">Direct vendor onboarding, quotation submission, and order tracking.</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

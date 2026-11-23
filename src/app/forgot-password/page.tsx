@@ -29,50 +29,49 @@ function ResetFlow() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Progress Steps */}
+    <div className="space-y-5">
       {step !== 'done' && (
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="flex items-center justify-between border-b border-gray-100 pb-4">
           <div className="flex items-center gap-2">
             <span
               className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
-                step === 'request' ? 'bg-[#c3002f] text-white' : 'bg-emerald-100 text-emerald-700'
+                step === 'request' ? 'bg-brand-600 text-white' : 'bg-success-100 text-success-700'
               }`}
             >
               1
             </span>
-            <span className={`text-xs ${step === 'request' ? 'font-bold text-slate-900' : 'text-slate-400'}`}>
+            <span className={`text-xs ${step === 'request' ? 'font-semibold text-gray-900' : 'text-gray-400'}`}>
               Email
             </span>
           </div>
-          <div className="h-0.5 w-8 bg-slate-200" />
+          <div className="h-px w-8 bg-gray-200" />
           <div className="flex items-center gap-2">
             <span
               className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
                 step === 'verify'
-                  ? 'bg-[#c3002f] text-white'
+                  ? 'bg-brand-600 text-white'
                   : step === 'set'
-                  ? 'bg-emerald-100 text-emerald-700'
-                  : 'bg-slate-100 text-slate-400'
+                  ? 'bg-success-100 text-success-700'
+                  : 'bg-gray-100 text-gray-400'
               }`}
             >
               2
             </span>
-            <span className={`text-xs ${step === 'verify' ? 'font-bold text-slate-900' : 'text-slate-400'}`}>
-              Kode OTP
+            <span className={`text-xs ${step === 'verify' ? 'font-semibold text-gray-900' : 'text-gray-400'}`}>
+              Verification
             </span>
           </div>
-          <div className="h-0.5 w-8 bg-slate-200" />
+          <div className="h-px w-8 bg-gray-200" />
           <div className="flex items-center gap-2">
             <span
               className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
-                step === 'set' ? 'bg-[#c3002f] text-white' : 'bg-slate-100 text-slate-400'
+                step === 'set' ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-400'
               }`}
             >
               3
             </span>
-            <span className={`text-xs ${step === 'set' ? 'font-bold text-slate-900' : 'text-slate-400'}`}>
-              Sandi Baru
+            <span className={`text-xs ${step === 'set' ? 'font-semibold text-gray-900' : 'text-gray-400'}`}>
+              New Password
             </span>
           </div>
         </div>
@@ -81,14 +80,13 @@ function ResetFlow() {
       {error && (
         <div
           role="alert"
-          className="flex items-start gap-2.5 rounded-xl border border-rose-200 bg-rose-50/90 p-3.5 text-xs text-rose-700"
+          className="flex items-start gap-2.5 rounded-xl border border-error-200 bg-error-50 p-3.5 text-xs text-error-700"
         >
-          <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
+          <AlertCircle className="h-4 w-4 shrink-0 text-error-600 mt-0.5" />
           <div className="min-w-0 flex-1 font-medium">{error}</div>
         </div>
       )}
 
-      {/* Step 1: Request Code */}
       {step === 'request' && (
         <form
           className="space-y-4"
@@ -101,37 +99,34 @@ function ResetFlow() {
           }}
         >
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-700">
-              Email Akun Terdaftar <span className="text-rose-600 font-bold">*</span>
+            <label className="block text-xs font-semibold text-gray-700">
+              Account Email <span className="text-error-500 font-bold">*</span>
             </label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
+              <Mail className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="username"
-                placeholder="nama@company.com atau email vendor"
-                className="w-full rounded-xl border border-slate-300 bg-white pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-2xs focus:border-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                placeholder="name@company.com"
+                className="h-[42px] w-full rounded-lg border border-gray-300 bg-white pl-10 pr-3.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-theme-xs focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
               />
             </div>
-            <p className="text-xs text-slate-400">
-              Kami akan mengirimkan 6-digit kode verifikasi sekali pakai ke email ini.
-            </p>
+            <p className="text-xs text-gray-500">We will send a 6-digit verification code to your email address.</p>
           </div>
 
           <button
             type="submit"
             disabled={busy}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#c3002f] py-3 text-sm font-semibold text-white shadow-md hover:bg-[#a50027] disabled:opacity-50 transition cursor-pointer"
+            className="flex h-[42px] w-full items-center justify-center rounded-lg bg-brand-600 text-sm font-semibold text-white shadow-theme-xs hover:bg-brand-700 disabled:opacity-50 transition cursor-pointer"
           >
-            {busy ? 'Mengirim Kode…' : 'Kirim Kode Verifikasi'}
+            {busy ? 'Sending code…' : 'Send Verification Code'}
           </button>
         </form>
       )}
 
-      {/* Step 2: Verify Code */}
       {step === 'verify' && (
         <form
           className="space-y-4"
@@ -143,16 +138,16 @@ function ResetFlow() {
             })
           }}
         >
-          <div className="rounded-xl border border-rose-100 bg-rose-50/50 p-3 text-xs text-slate-600">
-            Kode verifikasi 6 digit telah dikirimkan ke <strong className="text-slate-900">{email}</strong>.
+          <div className="rounded-xl border border-brand-100 bg-brand-50/60 p-3 text-xs text-gray-600">
+            A 6-digit verification code has been sent to <strong className="text-gray-900">{email}</strong>.
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-700">
-              Masukkan 6-Digit Kode OTP <span className="text-rose-600 font-bold">*</span>
+            <label className="block text-xs font-semibold text-gray-700">
+              6-Digit Code <span className="text-error-500 font-bold">*</span>
             </label>
             <div className="relative">
-              <KeyRound className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
+              <KeyRound className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
               <input
                 inputMode="numeric"
                 pattern="\d{6}"
@@ -162,7 +157,7 @@ function ResetFlow() {
                 onChange={(e) => setCode(e.target.value)}
                 autoComplete="one-time-code"
                 placeholder="123456"
-                className="w-full rounded-xl border border-slate-300 bg-white pl-10 pr-4 py-2.5 text-center font-mono text-lg font-bold tracking-widest text-slate-900 shadow-2xs focus:border-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                className="h-[42px] w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 text-center font-mono text-base font-bold tracking-widest text-gray-900 shadow-theme-xs focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
               />
             </div>
           </div>
@@ -171,29 +166,28 @@ function ResetFlow() {
             <button
               type="button"
               onClick={() => setStep('request')}
-              className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+              className="h-[42px] rounded-lg border border-gray-300 bg-white px-4 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition cursor-pointer"
             >
-              Kembali
+              Back
             </button>
             <button
               type="submit"
               disabled={busy}
-              className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#c3002f] py-2.5 text-sm font-semibold text-white shadow-md hover:bg-[#a50027] disabled:opacity-50 transition cursor-pointer"
+              className="flex-1 h-[42px] rounded-lg bg-brand-600 text-sm font-semibold text-white shadow-theme-xs hover:bg-brand-700 disabled:opacity-50 transition cursor-pointer"
             >
-              {busy ? 'Memverifikasi…' : 'Verifikasi Kode'}
+              {busy ? 'Verifying…' : 'Verify Code'}
             </button>
           </div>
         </form>
       )}
 
-      {/* Step 3: Set Password */}
       {step === 'set' && (
         <form
           className="space-y-4"
           onSubmit={(e) => {
             e.preventDefault()
             if (password !== confirmPassword) {
-              setError('Konfirmasi kata sandi tidak cocok.')
+              setError('Password confirmation does not match.')
               return
             }
             run(async () => {
@@ -203,11 +197,11 @@ function ResetFlow() {
           }}
         >
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-700">
-              Kata Sandi Baru <span className="text-rose-600 font-bold">*</span>
+            <label className="block text-xs font-semibold text-gray-700">
+              New Password <span className="text-error-500 font-bold">*</span>
             </label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
+              <Lock className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
               <input
                 type="password"
                 required
@@ -215,21 +209,19 @@ function ResetFlow() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="new-password"
-                placeholder="Minimal 12 karakter"
-                className="w-full rounded-xl border border-slate-300 bg-white pl-10 pr-4 py-2.5 text-sm text-slate-900 shadow-2xs focus:border-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                placeholder="Minimum 12 characters"
+                className="h-[42px] w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 text-sm text-gray-900 shadow-theme-xs focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
               />
             </div>
-            <p className="text-[11px] text-slate-400">
-              Harus terdiri dari minimal 12 karakter (huruf dan angka).
-            </p>
+            <p className="text-[11px] text-gray-400">Must be at least 12 characters with letters and digits.</p>
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-700">
-              Konfirmasi Kata Sandi Baru <span className="text-rose-600 font-bold">*</span>
+            <label className="block text-xs font-semibold text-gray-700">
+              Confirm Password <span className="text-error-500 font-bold">*</span>
             </label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
+              <Lock className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
               <input
                 type="password"
                 required
@@ -237,8 +229,8 @@ function ResetFlow() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 autoComplete="new-password"
-                placeholder="Ulangi kata sandi baru"
-                className="w-full rounded-xl border border-slate-300 bg-white pl-10 pr-4 py-2.5 text-sm text-slate-900 shadow-2xs focus:border-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                placeholder="Repeat new password"
+                className="h-[42px] w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 text-sm text-gray-900 shadow-theme-xs focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
               />
             </div>
           </div>
@@ -246,42 +238,41 @@ function ResetFlow() {
           <button
             type="submit"
             disabled={busy}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#c3002f] py-3 text-sm font-semibold text-white shadow-md hover:bg-[#a50027] disabled:opacity-50 transition cursor-pointer"
+            className="flex h-[42px] w-full items-center justify-center rounded-lg bg-brand-600 text-sm font-semibold text-white shadow-theme-xs hover:bg-brand-700 disabled:opacity-50 transition cursor-pointer"
           >
-            {busy ? 'Menyimpan Sandi…' : 'Perbarui Kata Sandi'}
+            {busy ? 'Saving…' : 'Set New Password'}
           </button>
         </form>
       )}
 
-      {/* Step 4: Done */}
       {step === 'done' && (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-6 text-center space-y-3">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+        <div className="rounded-xl border border-success-200 bg-success-50/70 p-6 text-center space-y-3">
+          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-success-100 text-success-600">
             <CheckCircle2 className="h-6 w-6" />
           </div>
-          <h3 className="text-base font-bold text-slate-900">Kata Sandi Berhasil Diperbarui</h3>
-          <p className="text-xs text-slate-600">
-            Kredensial akun Anda telah diperbarui dengan aman. Silakan masuk kembali dengan kata sandi baru Anda.
+          <h3 className="text-base font-bold text-gray-900">Password Updated</h3>
+          <p className="text-xs text-gray-600">
+            Your password has been updated. You can now sign in with your new credentials.
           </p>
           <div className="pt-2">
             <Link
               href="/login"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#c3002f] py-2.5 text-xs font-semibold text-white shadow-md hover:bg-[#a50027] transition"
+              className="inline-flex h-[40px] w-full items-center justify-center rounded-lg bg-brand-600 text-xs font-semibold text-white shadow-theme-xs hover:bg-brand-700 transition"
             >
-              <span>Kembali ke Halaman Masuk</span>
+              Back to Sign In
             </Link>
           </div>
         </div>
       )}
 
       {step !== 'done' && (
-        <div className="border-t border-slate-100 pt-3 text-center">
+        <div className="border-t border-gray-100 pt-3 text-center">
           <Link
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-rose-600 hover:underline"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-brand-600 hover:underline"
             href="/login"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            <span>Kembali ke halaman masuk</span>
+            <span>Back to sign in</span>
           </Link>
         </div>
       )}
@@ -292,11 +283,10 @@ function ResetFlow() {
 export default function ForgotPasswordPage() {
   return (
     <AuthLayout
-      title="Lupa Kata Sandi — Portal KPIN"
-      subtitle="Ikuti verifikasi kode keamanan untuk memulihkan akses akun Anda."
-      themeColor="#c3002f"
+      title="Reset Password"
+      subtitle="Verify your registered email address to set a new account password."
     >
-      <Suspense fallback={<div className="py-12 text-center text-sm text-slate-500">Memuat formulir pemulihan…</div>}>
+      <Suspense fallback={<div className="py-12 text-center text-sm text-gray-500">Loading reset flow…</div>}>
         <ResetFlow />
       </Suspense>
     </AuthLayout>

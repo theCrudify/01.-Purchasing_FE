@@ -5,7 +5,7 @@ import './globals.css'
 const outfit = Outfit({
   variable: '--font-outfit',
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
+  weight: ['300', '400', '500', '600', '700'],
 })
 
 const geistMono = Geist_Mono({
@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'KPIN — Purchasing & Supplier Portal | PT Kansai Paint Indonesia',
-  description: 'Enterprise Purchasing, Document Approval and Supplier Portal — PT Kansai Paint Indonesia',
+  title: 'Purchasing & Procurement Portal',
+  description: 'Integrated Purchasing, Document Approval and Supplier Portal',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

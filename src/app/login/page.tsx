@@ -43,23 +43,21 @@ function LoginForm() {
     }
   }
 
-  const themeColor = isVendor ? '#1e3a8a' : '#c3002f' // Navy for Vendor, Kansai Red for Internal
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Workspace Role Switcher */}
-      <div className="flex rounded-xl bg-slate-100 p-1 text-xs font-semibold">
+      <div className="flex rounded-xl bg-gray-100 p-1 text-xs font-semibold">
         <button
           type="button"
           onClick={() => {
             setIsVendor(false)
             setError('')
           }}
-          className={`flex-1 rounded-lg py-2.5 transition cursor-pointer ${
-            !isVendor ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
+          className={`flex-1 rounded-lg py-2 transition cursor-pointer ${
+            !isVendor ? 'bg-white text-gray-900 shadow-theme-xs' : 'text-gray-500 hover:text-gray-900'
           }`}
         >
-          Company KPIN (Internal)
+          Internal Staff
         </button>
         <button
           type="button"
@@ -67,8 +65,8 @@ function LoginForm() {
             setIsVendor(true)
             setError('')
           }}
-          className={`flex-1 rounded-lg py-2.5 transition cursor-pointer ${
-            isVendor ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
+          className={`flex-1 rounded-lg py-2 transition cursor-pointer ${
+            isVendor ? 'bg-white text-gray-900 shadow-theme-xs' : 'text-gray-500 hover:text-gray-900'
           }`}
         >
           Vendor & Supplier
@@ -78,32 +76,31 @@ function LoginForm() {
       {error && (
         <div
           role="alert"
-          className="flex items-start gap-2.5 rounded-xl border border-rose-200 bg-rose-50/90 p-3.5 text-xs text-rose-700"
+          className="flex items-start gap-2.5 rounded-xl border border-error-200 bg-error-50 p-3.5 text-xs text-error-700"
         >
-          <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
+          <AlertCircle className="h-4 w-4 shrink-0 text-error-600 mt-0.5" />
           <div className="min-w-0 flex-1 font-medium">{error}</div>
         </div>
       )}
 
-      <form onSubmit={submit} className="space-y-5">
+      <form onSubmit={submit} className="space-y-4">
         <div className="space-y-1.5">
-          <label className="block text-xs font-semibold text-slate-700">
-            {isVendor ? 'Vendor Code or Email' : 'Email or Employee NIK'}{' '}
-            <span className="text-rose-600 font-bold">*</span>
+          <label className="block text-xs font-semibold text-gray-700">
+            {isVendor ? 'Vendor Email' : 'Work Email'} <span className="text-error-500 font-bold">*</span>
           </label>
           <input
             name="email"
-            type="text"
+            type="email"
             required
             autoComplete="username"
-            placeholder={isVendor ? 'e.g. SM0111 or vendor@company.com' : 'e.g. admin@kpin.local or NIK'}
-            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-2xs transition-colors focus:border-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+            placeholder={isVendor ? 'vendor@company.com' : 'name@company.com'}
+            className="h-[42px] w-full rounded-lg border border-gray-300 bg-white px-3.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-theme-xs transition-colors focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
           />
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-xs font-semibold text-slate-700">
-            Kata Sandi / Password <span className="text-rose-600 font-bold">*</span>
+          <label className="block text-xs font-semibold text-gray-700">
+            Password <span className="text-error-500 font-bold">*</span>
           </label>
           <div className="relative">
             <input
@@ -111,13 +108,13 @@ function LoginForm() {
               type={showPassword ? 'text' : 'password'}
               required
               autoComplete="current-password"
-              placeholder="Masukkan kata sandi Anda"
-              className="w-full rounded-xl border border-slate-300 bg-white pl-4 pr-11 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 shadow-2xs transition-colors focus:border-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+              placeholder="Enter your password"
+              className="h-[42px] w-full rounded-lg border border-gray-300 bg-white pl-3.5 pr-10 text-sm text-gray-900 placeholder:text-gray-400 shadow-theme-xs transition-colors focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -125,55 +122,47 @@ function LoginForm() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+        <div className="flex items-center justify-between text-xs font-medium text-gray-600">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               checked={remember}
               onChange={(e) => setRemember(e.target.checked)}
-              className="rounded border-slate-300 text-rose-600 focus:ring-rose-500"
+              className="rounded border-gray-300 text-brand-600 focus:ring-brand-500"
             />
-            <span>Biarkan saya tetap masuk</span>
+            <span>Keep me signed in</span>
           </label>
           <Link
-            className="font-semibold text-rose-600 hover:text-rose-700 hover:underline"
+            className="font-semibold text-brand-600 hover:text-brand-700 hover:underline"
             href="/forgot-password"
           >
-            Lupa kata sandi?
+            Forgot password?
           </Link>
         </div>
 
         <button
           type="submit"
           disabled={busy}
-          style={{ backgroundColor: themeColor }}
-          className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white shadow-md hover:brightness-95 active:scale-[0.99] disabled:opacity-50 transition-all cursor-pointer"
+          className="flex h-[42px] w-full items-center justify-center gap-2 rounded-lg bg-brand-600 text-sm font-semibold text-white shadow-theme-xs hover:bg-brand-700 active:scale-[0.99] disabled:opacity-50 transition-all cursor-pointer"
         >
-          {busy ? (
-            <span className="flex items-center gap-2">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              <span>Sedang Masuk…</span>
-            </span>
-          ) : (
-            <span>Masuk / Sign In</span>
-          )}
+          {busy ? 'Signing in…' : 'Sign In'}
         </button>
       </form>
 
-      {/* Microsoft SSO (for Internal Staff) */}
+      {/* Microsoft SSO */}
       {sso && !isVendor && (
         <div>
           <div className="relative mb-4 flex items-center justify-center">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
+              <div className="w-full border-t border-gray-200" />
             </div>
-            <span className="relative bg-white px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-              Atau masuk dengan akun kantor
+            <span className="relative bg-white px-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+              Or continue with
             </span>
           </div>
           <a
             href={`/api/auth/entra/start?next=${encodeURIComponent(safeNext(sp.get('next')) ?? '/dashboard')}`}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white py-2.5 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition"
+            className="flex h-[42px] w-full items-center justify-center gap-2.5 rounded-lg border border-gray-300 bg-white text-xs font-semibold text-gray-700 shadow-theme-xs hover:bg-gray-50 transition"
           >
             <svg className="h-4 w-4" viewBox="0 0 21 21">
               <rect x="1" y="1" width="9" height="9" fill="#f25022" />
@@ -181,21 +170,19 @@ function LoginForm() {
               <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
               <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
             </svg>
-            <span>Microsoft Entra ID (Single Sign-On)</span>
+            <span>Sign in with Microsoft</span>
           </a>
         </div>
       )}
 
       {/* Vendor Onboarding Link */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-center">
-        <p className="text-xs text-slate-600">
-          Belum terdaftar sebagai rekanan / vendor resmi PT Kansai Paint Indonesia?
-        </p>
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-3.5 text-center">
+        <p className="text-xs text-gray-600">New business partner or supplier?</p>
         <Link
           href="/portal/register"
-          className="mt-1.5 inline-block text-xs font-bold text-rose-600 hover:text-rose-800 hover:underline"
+          className="mt-1 inline-block text-xs font-semibold text-brand-600 hover:text-brand-700 hover:underline"
         >
-          Registrasi Rekanan Baru (Vendor Registration) →
+          Register a new vendor account →
         </Link>
       </div>
     </div>
@@ -205,11 +192,10 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <AuthLayout
-      title="Sign In — Portal KPIN"
-      subtitle="Selamat datang di sistem Purchasing & Supplier Portal PT Kansai Paint Indonesia."
-      themeColor="#c3002f"
+      title="Sign In"
+      subtitle="Enter your email and password to access your purchasing workspace."
     >
-      <Suspense fallback={<div className="py-12 text-center text-sm text-slate-500">Memuat formulir login…</div>}>
+      <Suspense fallback={<div className="py-12 text-center text-sm text-gray-500">Loading sign in form…</div>}>
         <LoginForm />
       </Suspense>
     </AuthLayout>

@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Building2, CheckCircle2, KeyRound, Mail, PenTool, Phone, Shield, Upload, User, UserCheck } from 'lucide-react'
+import { Building2, CheckCircle2, PenTool, Shield, Upload, UserCheck } from 'lucide-react'
 import { AutoForm } from '@/components/form'
 import { Badge, Button, Card, ErrorText, PageHeader } from '@/components/ui'
 import { api, patch, post } from '@/lib/api'
@@ -23,7 +23,7 @@ export default function ProfilePage() {
   if (!p) {
     return (
       <div className="space-y-4">
-        <PageHeader title="Profil Pengguna" />
+        <PageHeader title="My Profile" />
         <ErrorText error={error} />
       </div>
     )
@@ -36,41 +36,40 @@ export default function ProfilePage() {
         .slice(0, 2)
         .join('')
         .toUpperCase()
-    : 'KP'
+    : 'U'
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Profil & Pengaturan Akun"
-        subtitle="Kelola informasi pribadi, keamanan kata sandi, dan spesimen tanda tangan digital untuk dokumen approval."
+        title="My Profile"
+        subtitle="Manage your personal details, password, and digital approval signature."
       />
 
       {msg && (
-        <div className="flex items-center gap-2.5 rounded-xl border border-success-200 bg-success-50 px-4 py-3 text-sm font-semibold text-success-700">
+        <div className="flex items-center gap-2 rounded-xl border border-success-200 bg-success-50 px-4 py-3 text-xs font-semibold text-success-700">
           <CheckCircle2 className="h-4 w-4 shrink-0 text-success-600" />
           <span>{msg}</span>
         </div>
       )}
       <ErrorText error={error} />
 
-      {/* Top User Identity Banner Card */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-xs">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-theme-xs">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-[#c3002f] to-brand-600 text-xl font-extrabold text-white shadow-theme-sm">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-brand-600 text-lg font-bold text-white shadow-theme-xs">
               {initials}
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-xl font-bold text-gray-900">{p.displayName}</h2>
+                <h2 className="text-lg font-bold text-gray-900">{p.displayName}</h2>
                 <Badge value={p.userType} />
                 <Badge value="ACTIVE" />
               </div>
-              <p className="mt-0.5 text-sm text-gray-500">{p.email}</p>
+              <p className="mt-0.5 text-xs text-gray-500">{p.email}</p>
               <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-600">
                 {p.employeeNo && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 px-2.5 py-1 font-mono font-semibold text-gray-800">
-                    NIK: {p.employeeNo}
+                  <span className="inline-flex items-center gap-1 rounded border border-gray-200 bg-gray-100 px-2 py-0.5 font-mono font-semibold text-gray-800">
+                    ID: {p.employeeNo}
                   </span>
                 )}
                 {p.departmentName && (
@@ -82,60 +81,59 @@ export default function ProfilePage() {
                 {p.superiorName && (
                   <span className="inline-flex items-center gap-1 text-gray-600">
                     <UserCheck className="h-3.5 w-3.5 text-gray-400" />
-                    Atasan: <strong>{p.superiorName}</strong>
+                    Superior: <strong>{p.superiorName}</strong>
                   </span>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="rounded-xl border border-gray-100 bg-gray-50/70 px-4 py-3 text-xs">
-            <span className="block font-medium text-gray-400 uppercase">Metode Autentikasi</span>
-            <span className="mt-1 inline-flex items-center gap-1.5 font-semibold text-gray-800">
-              <Shield className="h-3.5 w-3.5 text-brand-500" />
-              {p.authProvider === 'LOCAL' ? 'KPIN Local Credentials' : p.authProvider}
+          <div className="rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs">
+            <span className="block font-medium text-gray-400 uppercase text-[10px]">Authentication</span>
+            <span className="mt-0.5 inline-flex items-center gap-1.5 font-semibold text-gray-800">
+              <Shield className="h-3.5 w-3.5 text-brand-600" />
+              {p.authProvider}
             </span>
           </div>
         </div>
       </div>
 
-      {/* 2-Column Profile Forms */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div className="space-y-6 lg:col-span-7">
-          <Card title="Informasi Profil" desc="Perbarui nama tampilan dan nomor kontak Anda.">
+          <Card title="Personal Information" desc="Update your display name and phone number.">
             <AutoForm
               fields={[
-                { name: 'displayName', label: 'Nama Lengkap', required: true },
-                { name: 'phone', label: 'Nomor Telepon / WhatsApp' },
+                { name: 'displayName', label: 'Full Name', required: true },
+                { name: 'phone', label: 'Phone Number' },
               ]}
               initial={p}
-              submitLabel="Simpan Perubahan"
+              submitLabel="Save Changes"
               onSubmit={async (v) => {
                 setP((await patch('/profile', v)).data)
-                setMsg('Profil berhasil diperbarui.')
+                setMsg('Profile updated.')
               }}
             />
           </Card>
 
           {p.authProvider === 'LOCAL' && (
             <Card
-              title="Ubah Kata Sandi"
-              desc="Pastikan kata sandi baru minimal 12 karakter kombinasi huruf dan angka. Mengubah kata sandi akan mengeluarkan sesi perangkat lain."
+              title="Change Password"
+              desc="Minimum 12 characters combining letters and digits. Changing password signs out other active sessions."
             >
               <AutoForm
                 fields={[
-                  { name: 'currentPassword', label: 'Kata Sandi Saat Ini', type: 'password', required: true },
+                  { name: 'currentPassword', label: 'Current Password', type: 'password', required: true },
                   {
                     name: 'newPassword',
-                    label: 'Kata Sandi Baru (Min. 12 karakter, huruf + angka)',
+                    label: 'New Password (min. 12 chars)',
                     type: 'password',
                     required: true,
                   },
                 ]}
-                submitLabel="Perbarui Kata Sandi"
+                submitLabel="Update Password"
                 onSubmit={async (v) => {
                   await post('/profile/password', v)
-                  setMsg('Kata sandi berhasil diubah. Sesi di perangkat lain telah diakhiri.')
+                  setMsg('Password changed. Other sessions have been signed out.')
                 }}
               />
             </Card>
@@ -144,11 +142,11 @@ export default function ProfilePage() {
 
         <div className="lg:col-span-5">
           <Card
-            title="Spesimen Tanda Tangan Digital"
-            desc="Digunakan untuk pencetakan otomatis pada dokumen PR/PO yang telah Anda setujui."
+            title="Digital Signature"
+            desc="Printed automatically on approved procurement documents."
           >
             <div className="space-y-4">
-              <div className="flex min-h-[140px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/60 p-4">
+              <div className="flex min-h-[140px] flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
                 {p.hasSignature ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -159,9 +157,9 @@ export default function ProfilePage() {
                   />
                 ) : (
                   <div className="text-center text-gray-400">
-                    <PenTool className="mx-auto h-8 w-8 text-gray-300" />
-                    <p className="mt-1.5 text-xs font-medium text-gray-500">Belum ada spesimen tanda tangan</p>
-                    <p className="text-[11px] text-gray-400">Format PNG transparan atau JPEG (maks. 2MB)</p>
+                    <PenTool className="mx-auto h-7 w-7 text-gray-300" />
+                    <p className="mt-1.5 text-xs font-medium text-gray-500">No signature uploaded</p>
+                    <p className="text-[11px] text-gray-400">PNG or JPEG (max 2 MB)</p>
                   </div>
                 )}
               </div>
@@ -175,7 +173,7 @@ export default function ProfilePage() {
                     await post('/profile/signature', new FormData(e.currentTarget))
                     setSigV((x) => x + 1)
                     await load()
-                    setMsg('Spesimen tanda tangan berhasil diunggah.')
+                    setMsg('Signature uploaded.')
                   } catch (err) {
                     setError((err as Error).message)
                   }
@@ -188,11 +186,11 @@ export default function ProfilePage() {
                   accept="image/png,image/jpeg"
                   required
                   aria-label="Signature image"
-                  className="block w-full rounded-lg border border-gray-300 bg-white text-xs text-gray-700 file:mr-3 file:rounded-l-lg file:border-0 file:bg-brand-50 file:px-3.5 file:py-2.5 file:text-xs file:font-semibold file:text-brand-700 hover:file:bg-brand-100 cursor-pointer"
+                  className="block w-full rounded-lg border border-gray-300 bg-white text-xs text-gray-700 file:mr-3 file:rounded-l-lg file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-gray-700 hover:file:bg-gray-200 cursor-pointer"
                 />
                 <Button type="submit" className="w-full">
                   <Upload className="h-4 w-4" />
-                  <span>Unggah Tanda Tangan</span>
+                  <span>Upload Signature</span>
                 </Button>
               </form>
             </div>
