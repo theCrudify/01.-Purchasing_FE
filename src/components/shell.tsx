@@ -133,7 +133,7 @@ function AppHeader({
     : 'U'
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 w-full border-b border-gray-200 bg-white">
+    <header className="sticky top-0 z-40 flex h-16 w-full border-b border-gray-200 bg-white print:hidden">
       <div className="flex flex-1 items-center justify-between px-4 lg:px-6">
         {/* Left: Sidebar Toggle & Command Search */}
         <div className="flex items-center gap-3">
@@ -421,7 +421,7 @@ function AppSidebar({
       <aside
         onMouseEnter={() => !expanded && setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className={`fixed top-0 left-0 z-50 flex h-screen flex-col border-r border-gray-200 bg-white text-gray-900 transition-all duration-200 ease-in-out ${
+        className={`fixed top-0 left-0 z-50 flex h-screen flex-col border-r border-gray-200 bg-white text-gray-900 transition-all duration-200 ease-in-out print:hidden ${
           showFull ? 'w-[264px]' : 'w-[76px]'
         } ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
       >
@@ -544,7 +544,7 @@ function ShellInner({ area, children }: { area: 'internal' | 'portal'; children:
   if (wrongArea) return null
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 print:min-h-0 print:bg-white">
       <AppSidebar
         area={area}
         expanded={expanded}
@@ -554,7 +554,7 @@ function ShellInner({ area, children }: { area: 'internal' | 'portal'; children:
       />
 
       <div
-        className={`flex min-h-screen flex-col transition-all duration-200 ease-in-out ${
+        className={`flex min-h-screen flex-col transition-all duration-200 ease-in-out print:min-h-0 print:pl-0 ${
           expanded ? 'lg:pl-[264px]' : 'lg:pl-[76px]'
         }`}
       >
@@ -565,7 +565,7 @@ function ShellInner({ area, children }: { area: 'internal' | 'portal'; children:
           items={items}
         />
 
-        <main className="mx-auto w-full max-w-screen-2xl flex-1 p-4 md:p-6">{children}</main>
+        <main className="mx-auto w-full max-w-screen-2xl flex-1 p-4 md:p-6 print:max-w-none print:p-0">{children}</main>
       </div>
     </div>
   )

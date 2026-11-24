@@ -24,6 +24,7 @@ export const nav: NavItem[] = [
   { section: 'Invoicing & Outgoing Payment', label: 'AR Invoice (ARI)', href: '/finance/ar-invoices' },
 
   // Supplier Portal Documents
+  { section: 'Procurement', label: 'RFQ Invitations', href: '/portal/rfq', area: 'portal' },
   { section: 'Procurement', label: 'My Quotations', href: '/portal/quotations', area: 'portal' },
   { section: 'Procurement', label: 'Purchase Orders', href: '/portal/po', area: 'portal' },
   { section: 'Procurement', label: 'Contracts', href: '/portal/contracts', area: 'portal' },

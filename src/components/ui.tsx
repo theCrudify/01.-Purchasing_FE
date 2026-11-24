@@ -315,7 +315,7 @@ export function PageHeader({
   const category = SECTION_LABELS[segments[0] ?? ''] ?? 'Workspace'
 
   return (
-    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between print:hidden">
       <div className="min-w-0">
         <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-1.5 text-xs font-medium text-gray-500">
           <Link href={homeHref} className="inline-flex items-center gap-1 hover:text-brand-600 transition-colors">

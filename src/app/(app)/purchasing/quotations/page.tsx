@@ -8,6 +8,7 @@ import { LookupSelect } from '@/components/form'
 import { Badge, Button, ErrorText, Field, Input, Modal, PageHeader, Select, Textarea, fmtDate, fmtMoney } from '@/components/ui'
 import { post } from '@/lib/api'
 import { useList } from '@/lib/use-list'
+import { useAreaHref } from '@/lib/area-href'
 
 type QuoRow = {
   id: string
@@ -42,6 +43,7 @@ const emptyLine = (): QuoLine => ({
 
 export default function QuotationsPage() {
   const [status, setStatus] = useState('')
+  const to = useAreaHref()
   const list = useList<QuoRow>('/quotations', 'createdAt:desc', { status: status || undefined })
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -112,7 +114,7 @@ export default function QuotationsPage() {
         title="Vendor Quotations (QUO)"
         subtitle="Record, evaluate, and compare supplier price quotations submitted against RFQs."
         actions={
-          <Link href="/purchasing/quotations/new"><Button>
+          <Link href={to('/purchasing/quotations/new')}><Button>
             <Plus className="h-4 w-4" />
             <span>New Quotation</span>
           </Button></Link>
@@ -129,7 +131,7 @@ export default function QuotationsPage() {
             header: 'Quotation No',
             sortable: true,
             render: (r) => (
-              <Link className="font-semibold text-brand-600 hover:underline" href={`/purchasing/quotations/${r.id}`}>
+              <Link className="font-semibold text-brand-600 hover:underline" href={to(`/purchasing/quotations/${r.id}`)}>
                 {r.docNo ?? '(Draft)'}
               </Link>
             ),
@@ -160,7 +162,7 @@ export default function QuotationsPage() {
             render: (r) => (
               <div className="flex items-center gap-1.5">
                 <Link
-                  href={`/purchasing/quotations/${r.id}`}
+                  href={to(`/purchasing/quotations/${r.id}`)}
                   className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
                 >
                   <Eye className="h-3.5 w-3.5" />

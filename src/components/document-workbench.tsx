@@ -44,6 +44,7 @@ import {
   fmtMoney,
 } from '@/components/ui'
 import { api, patch, post } from '@/lib/api'
+import { useAreaHref } from '@/lib/area-href'
 import { useMe } from '@/lib/me'
 
 export type WorkbenchModule =
@@ -284,6 +285,7 @@ export function DocumentWorkbench({
 }) {
   const meta = MODULE_META[module]
   const router = useRouter()
+  const areaHref = useAreaHref()
   const me = useMe()
   const isNew = !documentId
   const { doc, error: loadErr, reload } = useDocument(documentId ?? null)
@@ -339,6 +341,7 @@ export function DocumentWorkbench({
     bpCode: '',
     bpLabel: '',
     bpTaxId: '',
+    vendors: [] as { id: string; label: string }[], // RFQ: invited vendors
     bpReference: '',
     validUntil: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
     paymentTermId: null as number | null,
@@ -665,6 +668,7 @@ export function DocumentWorkbench({
       bpCode: det.BpCode ?? f.bpCode,
       bpLabel: det.BpName ? `${det.BpCode ?? ''} — ${det.BpName}` : f.bpLabel,
       bpReference: det.BpReference ?? f.bpReference,
+      vendors: ((doc as any).participants ?? []).map((p: any) => ({ id: p.id, label: `${p.bpCode ?? ''} — ${p.legalName}` })),
       validUntil: det.ValidUntil ? String(det.ValidUntil).slice(0, 10) : f.validUntil,
       paymentTermId: det.PaymentTermId ?? f.paymentTermId,
       paymentTermLabel: det.PaymentTermName ?? f.paymentTermLabel,
@@ -790,8 +794,10 @@ export function DocumentWorkbench({
     setEditMode(false)
   }, [doc?.id, doc?.version])
 
+  // Vendors (BP) only author quotations; every other document is view-only for them (the API enforces the same).
+  const bpViewOnly = me?.userType === 'BP' && module !== 'QUO'
   const isEditableStatus =
-    isNew || (doc && !doc.isDeleted && ['DRAFT', 'RETURNED', 'REVISION_REQUIRED'].includes(doc.status))
+    !bpViewOnly && (isNew || (doc && !doc.isDeleted && ['DRAFT', 'RETURNED', 'REVISION_REQUIRED'].includes(doc.status)))
   const readOnly = !editMode || !isEditableStatus
 
   // Computed financial totals
@@ -883,7 +889,7 @@ export function DocumentWorkbench({
           currencyCode: form.currencyCode,
           terms: form.terms || null,
           remarks: form.remarks || null,
-          vendorIds: form.bpId ? [form.bpId] : [],
+          vendorIds: form.vendors.map((v) => v.id),
           lines: lines.map((l) => ({
             itemId: l.itemId,
             description: l.description,
@@ -897,7 +903,7 @@ export function DocumentWorkbench({
         return {
           title: form.title,
           rfqId: form.rfqId,
-          bpId: form.bpId,
+          bpId: form.bpId || undefined, // BP users: API uses their own company
           bpReference: form.bpReference || null,
           validUntil: form.validUntil || null,
           currencyCode: form.currencyCode,
@@ -1133,7 +1139,7 @@ export function DocumentWorkbench({
       }
 
       if (isNew && targetId) {
-        router.push(`${meta.listHref}/${targetId}`)
+        router.push(areaHref(`${meta.listHref}/${targetId}`))
       } else {
         setSuccessMsg(
           andSubmit
@@ -1154,7 +1160,7 @@ export function DocumentWorkbench({
     return (
       <div className="space-y-4">
         <ErrorText error={loadErr} />
-        <Link href={backHref ?? meta.listHref}>
+        <Link href={backHref ?? areaHref(meta.listHref)}>
           <Button variant="secondary">← Kembali ke Daftar</Button>
         </Link>
       </div>
@@ -1173,14 +1179,34 @@ export function DocumentWorkbench({
   const targetDocLines: any[] = linkedPayTargetDoc?.lines ?? []
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6 pb-12 print:space-y-4 print:pb-0">
+      {/* Formal Print Letterhead (hidden on screen, shown on print) */}
+      <div className="hidden print:flex items-start justify-between border-b-2 border-gray-900 pb-3 mb-2">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+            Purchasing &amp; Procurement System
+          </p>
+          <h1 className="text-lg font-bold text-gray-900">
+            {meta.titleDetail.replace('Detail & Edit ', '')}
+          </h1>
+          <p className="text-xs text-gray-600">{form.title || doc?.title || ''}</p>
+        </div>
+        <div className="text-right">
+          <div className="font-mono text-sm font-bold text-gray-900">{doc?.docNo ?? '(DRAFT)'}</div>
+          <div className="mt-0.5 text-[11px] text-gray-600">
+            Tanggal: {fmtDate(form.docDate || doc?.docDate)} · Status: <strong>{doc?.status ?? 'DRAFT'}</strong>
+          </div>
+          <div className="text-[10px] text-gray-400">Dicetak: {new Date().toLocaleString('id-ID')}</div>
+        </div>
+      </div>
+
       {/* Top Action Bar & Breadcrumb */}
       <PageHeader
         title={isNew ? meta.titleNew : `${meta.titleDetail} — ${doc?.docNo ?? '(Draft)'}`}
         subtitle={meta.subtitle}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <Link href={backHref ?? meta.listHref}>
+            <Link href={backHref ?? areaHref(meta.listHref)}>
               <Button variant="secondary">
                 <ArrowLeft className="h-4 w-4" />
                 <span>Back to List</span>
@@ -1495,7 +1521,47 @@ export function DocumentWorkbench({
               </Field>
             )}
 
-            {['RFQ', 'QUO', 'CTR', 'PO', 'INV', 'ARI', 'SVR'].includes(module) && (
+            {module === 'RFQ' && (
+              <Field label={`Invited Vendors (${form.vendors.length})`}>
+                <div className="space-y-2">
+                  {!readOnly && (
+                    <LookupSelect
+                      key={form.vendors.length} // remount = clear the search box after each add
+                      path="/vendors"
+                      value={null}
+                      label={(r) => `${r.bpCode ?? ''} — ${r.legalName}`}
+                      onChange={(v, r) => {
+                        if (!v || form.vendors.some((x) => x.id === v)) return
+                        setForm({ ...form, vendors: [...form.vendors, { id: v, label: `${r?.bpCode ?? ''} — ${r?.legalName ?? ''}` }] })
+                      }}
+                    />
+                  )}
+                  {form.vendors.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {form.vendors.map((v) => (
+                        <span key={v.id} className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">
+                          {v.label}
+                          {!readOnly && (
+                            <button
+                              type="button"
+                              aria-label={`Remove ${v.label}`}
+                              className="text-brand-500 hover:text-error-600"
+                              onClick={() => setForm({ ...form, vendors: form.vendors.filter((x) => x.id !== v.id) })}
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-500">Belum ada vendor diundang. Pilih vendor di atas; bisa lebih dari satu.</p>
+                  )}
+                </div>
+              </Field>
+            )}
+
+            {['QUO', 'CTR', 'PO', 'INV', 'ARI', 'SVR'].includes(module) && (
               <>
                 <Field
                   label={
@@ -1507,6 +1573,9 @@ export function DocumentWorkbench({
                 >
                   {readOnly ? (
                     <Input disabled value={form.bpLabel || '—'} />
+                  ) : me?.userType === 'BP' ? (
+                    // vendors can't browse /vendors; the API quotes as the user's own company
+                    <Input disabled value={form.bpLabel || me.displayName} />
                   ) : (
                     <LookupSelect
                       path="/vendors"
@@ -4030,15 +4099,21 @@ export function DocumentWorkbench({
             )}
           </Card>
 
-          {!isNew && doc && <CommentPanel publicId={doc.id} />}
+          {!isNew && doc && (
+            <div className="print:hidden">
+              <CommentPanel publicId={doc.id} />
+            </div>
+          )}
         </div>
       </div>
 
       {/* SECTION 4: Live Approval Decision Engine & Status Audit History */}
       {!isNew && doc && (
-        <div className="space-y-6">
+        <div className="space-y-6 print:space-y-3">
           <ApprovalPanel doc={doc} onDone={reload} />
-          <StatusTimeline doc={doc} />
+          <div className="print:hidden">
+            <StatusTimeline doc={doc} />
+          </div>
         </div>
       )}
 
