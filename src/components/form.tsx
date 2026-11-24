@@ -1,5 +1,6 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { api, qs, ApiError, type Paged } from '@/lib/api'
 import { Button, ErrorText, Field, Input, Select, Textarea } from './ui'
 
@@ -27,22 +28,57 @@ export function LookupSelect({ path, value, onChange, label, valueKey = 'id', pa
   const [rows, setRows] = useState<any[]>([])
   const [open, setOpen] = useState(false)
   const [text, setText] = useState(initialLabel ?? '')
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState<{ left: number; width: number; top?: number; bottom?: number } | null>(null)
+
+  useEffect(() => {
+    if (initialLabel) setText(initialLabel)
+  }, [initialLabel])
+
+  useEffect(() => {
+    if (!open) return
+    const updatePos = () => {
+      const el = wrapRef.current
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - r.bottom
+      const flipUp = spaceBelow < 260 && r.top > spaceBelow
+      setPos({
+        left: r.left,
+        width: r.width,
+        ...(flipUp ? { bottom: window.innerHeight - r.top + 4 } : { top: r.bottom + 4 }),
+      })
+    }
+    updatePos()
+    window.addEventListener('scroll', updatePos, true)
+    window.addEventListener('resize', updatePos)
+    return () => {
+      window.removeEventListener('scroll', updatePos, true)
+      window.removeEventListener('resize', updatePos)
+    }
+  }, [open])
+
   useEffect(() => {
     if (!open) return
     const t = setTimeout(() => api<Paged<any>>(`${path}?${qs({ q, pageSize: 20, ...params })}`).then((r) => setRows(r.data)).catch(() => setRows([])), 250)
     return () => clearTimeout(t)
   }, [q, open, path, JSON.stringify(params)])
   useEffect(() => { if (value != null && value !== '' && !text) api<{ data: any }>(`${path}/${value}`).then((r) => setText(label(r.data))).catch(() => {}) }, [value])
+
   return (
-    <div className="relative">
+    <div ref={wrapRef} className="relative">
       <Input disabled={disabled} value={open ? q : text} placeholder="Search…" onFocus={() => { setOpen(true); setQ('') }} onBlur={() => setTimeout(() => setOpen(false), 150)} onChange={(e) => setQ(e.target.value)} />
-      {open && (
-        <ul className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded border bg-white shadow">
-          <li><button type="button" className="w-full px-2 py-1 text-left text-sm text-gray-500 hover:bg-gray-50" onMouseDown={() => { onChange(null); setText('') }}>— none —</button></li>
+      {open && pos && typeof document !== 'undefined' && createPortal(
+        <ul
+          style={{ position: 'fixed', left: pos.left, width: pos.width, top: pos.top, bottom: pos.bottom, zIndex: 9999 }}
+          className="max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white py-1 shadow-theme-lg"
+        >
+          <li><button type="button" className="w-full px-3 py-1.5 text-left text-xs text-gray-500 hover:bg-gray-50 cursor-pointer" onMouseDown={() => { onChange(null); setText(''); setOpen(false) }}>— none —</button></li>
           {rows.map((r) => (
-            <li key={r[valueKey]}><button type="button" className="w-full px-2 py-1 text-left text-sm hover:bg-gray-50" onMouseDown={() => { onChange(r[valueKey], r); setText(label(r)) }}>{label(r)}</button></li>
+            <li key={r[valueKey]}><button type="button" className="w-full px-3 py-1.5 text-left text-xs text-gray-800 hover:bg-brand-50 hover:text-brand-700 cursor-pointer" onMouseDown={() => { onChange(r[valueKey], r); setText(label(r)); setOpen(false) }}>{label(r)}</button></li>
           ))}
-        </ul>
+        </ul>,
+        document.body
       )}
     </div>
   )

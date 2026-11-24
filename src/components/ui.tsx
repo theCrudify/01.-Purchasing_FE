@@ -354,9 +354,9 @@ export const Card = ({
   className?: string
   noPadding?: boolean
 }) => (
-  <section className={cx('overflow-hidden rounded-xl border border-gray-200 bg-white shadow-theme-xs', className)}>
+  <section className={cx(noPadding && 'overflow-hidden', 'rounded-xl border border-gray-200 bg-white shadow-theme-xs', className)}>
     {title && (
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 bg-gray-50/40 px-5 py-3.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-t-xl border-b border-gray-200 bg-gray-50/40 px-5 py-3.5">
         <div className="min-w-0">
           <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
           {desc && <p className="mt-0.5 text-xs text-gray-500">{desc}</p>}
