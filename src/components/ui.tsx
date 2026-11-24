@@ -15,10 +15,12 @@ const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).jo
 
 export function Button({
   variant = 'primary',
+  size = 'md',
   className,
   ...p
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost'
+  size?: 'sm' | 'md'
 }) {
   const v = {
     primary:
@@ -30,12 +32,18 @@ export function Button({
     ghost: 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 font-medium',
   }[variant]
 
+  const s = {
+    sm: 'px-2.5 py-1.5 text-xs rounded-lg gap-1.5',
+    md: 'px-3.5 py-2 text-sm rounded-lg gap-2',
+  }[size]
+
   return (
     <button
       type="button"
       {...p}
       className={cx(
-        'inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm transition-all focus:outline-none focus:ring-3 focus:ring-brand-500/15 disabled:pointer-events-none disabled:opacity-45 cursor-pointer',
+        'inline-flex items-center justify-center transition-all focus:outline-none focus:ring-3 focus:ring-brand-500/15 disabled:pointer-events-none disabled:opacity-45 cursor-pointer',
+        s,
         v,
         className
       )}
@@ -47,7 +55,7 @@ export const Input = ({ className, ...p }: InputHTMLAttributes<HTMLInputElement>
   <input
     {...p}
     className={cx(
-      'h-[40px] w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2 text-sm text-gray-900 placeholder:text-gray-400 shadow-theme-xs transition-all focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15 disabled:bg-gray-100 disabled:text-gray-500',
+      'h-[38px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 shadow-theme-xs transition-all focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15 disabled:bg-gray-100 disabled:text-gray-500',
       className
     )}
   />
@@ -57,7 +65,7 @@ export const Textarea = ({ className, ...p }: TextareaHTMLAttributes<HTMLTextAre
   <textarea
     {...p}
     className={cx(
-      'w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2 text-sm text-gray-900 placeholder:text-gray-400 shadow-theme-xs transition-all focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15 disabled:bg-gray-100 disabled:text-gray-500',
+      'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 shadow-theme-xs transition-all focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15 disabled:bg-gray-100 disabled:text-gray-500',
       className
     )}
   />
@@ -67,7 +75,7 @@ export const Select = ({ className, ...p }: SelectHTMLAttributes<HTMLSelectEleme
   <select
     {...p}
     className={cx(
-      'h-[40px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-theme-xs transition-all focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15 disabled:bg-gray-100 disabled:text-gray-500 cursor-pointer',
+      'h-[38px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-theme-xs transition-all focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15 disabled:bg-gray-100 disabled:text-gray-500 cursor-pointer',
       className
     )}
   />
@@ -194,10 +202,10 @@ export function ConfirmDeleteModal({
           </div>
         </div>
         <div className="flex items-center justify-end gap-2 border-t border-gray-100 bg-gray-50 px-5 py-3">
-          <Button variant="secondary" onClick={onClose} disabled={busy}>
+          <Button variant="secondary" size="sm" onClick={onClose} disabled={busy}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={onConfirm} disabled={busy}>
+          <Button variant="danger" size="sm" onClick={onConfirm} disabled={busy}>
             {busy ? 'Deleting…' : 'Delete'}
           </Button>
         </div>
@@ -206,50 +214,88 @@ export function ConfirmDeleteModal({
   )
 }
 
-const BADGE_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
-  DRAFT: { bg: 'bg-gray-100 border border-gray-200', text: 'text-gray-700', dot: 'bg-gray-400' },
-  SUBMITTED: { bg: 'bg-brand-50 border border-brand-200', text: 'text-brand-700', dot: 'bg-brand-500' },
-  PENDING: { bg: 'bg-warning-50 border border-warning-200', text: 'text-warning-700', dot: 'bg-warning-500' },
-  PENDING_APPROVAL: { bg: 'bg-warning-50 border border-warning-200', text: 'text-warning-700', dot: 'bg-warning-500' },
-  WAITING: { bg: 'bg-gray-100 border border-gray-200', text: 'text-gray-600', dot: 'bg-gray-400' },
-  APPROVED: { bg: 'bg-success-50 border border-success-200', text: 'text-success-700', dot: 'bg-success-500' },
-  ISSUED: { bg: 'bg-success-50 border border-success-200', text: 'text-success-700', dot: 'bg-success-500' },
-  POSTED: { bg: 'bg-success-50 border border-success-200', text: 'text-success-700', dot: 'bg-success-500' },
-  PAID: { bg: 'bg-success-50 border border-success-200', text: 'text-success-700', dot: 'bg-success-600' },
-  ACTIVE: { bg: 'bg-success-50 border border-success-200', text: 'text-success-700', dot: 'bg-success-500' },
-  INACTIVE: { bg: 'bg-gray-100 border border-gray-200', text: 'text-gray-600', dot: 'bg-gray-400' },
-  REJECTED: { bg: 'bg-error-50 border border-error-200', text: 'text-error-700', dot: 'bg-error-500' },
-  CANCELLED: { bg: 'bg-error-50 border border-error-200', text: 'text-error-700', dot: 'bg-error-400' },
-  REVOKED: { bg: 'bg-error-50 border border-error-200', text: 'text-error-700', dot: 'bg-error-500' },
-  DELETED: { bg: 'bg-error-50 border border-error-200', text: 'text-error-700', dot: 'bg-error-500' },
-  LOCKED: { bg: 'bg-error-50 border border-error-200', text: 'text-error-700', dot: 'bg-error-500' },
-  RETURNED: { bg: 'bg-warning-50 border border-warning-200', text: 'text-warning-700', dot: 'bg-warning-500' },
-  REVISION_REQUIRED: { bg: 'bg-warning-50 border border-warning-200', text: 'text-warning-700', dot: 'bg-warning-500' },
-  PENDING_ACTIVATION: { bg: 'bg-warning-50 border border-warning-200', text: 'text-warning-700', dot: 'bg-warning-500' },
-  DISABLED: { bg: 'bg-gray-100 border border-gray-200', text: 'text-gray-600', dot: 'bg-gray-400' },
-  INTERNAL: { bg: 'bg-brand-50 border border-brand-200', text: 'text-brand-700', dot: 'bg-brand-500' },
-  BP: { bg: 'bg-gray-100 border border-gray-200', text: 'text-gray-700', dot: 'bg-gray-500' },
+const TONE = {
+  neutral: { bg: 'bg-gray-100 border border-gray-200', text: 'text-gray-700', dot: 'bg-gray-400' },
+  brand: { bg: 'bg-brand-50 border border-brand-200', text: 'text-brand-700', dot: 'bg-brand-500' },
+  success: { bg: 'bg-success-50 border border-success-200', text: 'text-success-700', dot: 'bg-success-500' },
+  warning: { bg: 'bg-warning-50 border border-warning-200', text: 'text-warning-700', dot: 'bg-warning-500' },
+  error: { bg: 'bg-error-50 border border-error-200', text: 'text-error-700', dot: 'bg-error-500' },
+} as const
+
+const BADGE_MAP: Record<string, keyof typeof TONE> = {
+  DRAFT: 'neutral',
+  WAITING: 'neutral',
+  INACTIVE: 'neutral',
+  DISABLED: 'neutral',
+  CLOSED: 'neutral',
+  BP: 'neutral',
+  SUBMITTED: 'brand',
+  PUBLISHED: 'brand',
+  ACKNOWLEDGED: 'brand',
+  PAYMENT_PROCESSING: 'brand',
+  SENT_TO_BANK: 'brand',
+  INTERNAL: 'brand',
+  PENDING: 'warning',
+  PENDING_APPROVAL: 'warning',
+  PENDING_ACTIVATION: 'warning',
+  RETURNED: 'warning',
+  REVISION_REQUIRED: 'warning',
+  PARTIALLY_RECEIVED: 'warning',
+  PARTIALLY_PAID: 'warning',
+  UNDER_EVALUATIO: 'warning',
+  UNDER_EVALUATION: 'warning',
+  APPROVED: 'success',
+  ISSUED: 'success',
+  POSTED: 'success',
+  PAID: 'success',
+  ACTIVE: 'success',
+  VERIFIED: 'success',
+  RECEIVED: 'success',
+  DISBURSED: 'success',
+  SETTLED: 'success',
+  AWARDED: 'success',
+  COMPLETED: 'success',
+  REJECTED: 'error',
+  CANCELLED: 'error',
+  REVOKED: 'error',
+  DELETED: 'error',
+  LOCKED: 'error',
+  FAILED: 'error',
+  NOT_AWARDED: 'neutral',
+  WITHDRAWN: 'neutral',
+  SUPERSEDED: 'neutral',
 }
 
 export const Badge = ({ value }: { value: string | null | undefined }) => {
   if (!value) return null
-  const s = BADGE_STYLES[value] ?? {
-    bg: 'bg-gray-100 border border-gray-200',
-    text: 'text-gray-700',
-    dot: 'bg-gray-400',
-  }
+  const s = TONE[BADGE_MAP[value] ?? 'neutral']
   return (
     <span
       className={cx(
-        'inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium',
+        'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-0.5 text-[11px] font-semibold',
         s.bg,
         s.text
       )}
     >
-      <span className={cx('h-1.5 w-1.5 rounded-full', s.dot)} />
+      <span className={cx('h-1.5 w-1.5 shrink-0 rounded-full', s.dot)} />
       {value.replaceAll('_', ' ')}
     </span>
   )
+}
+
+const SECTION_LABELS: Record<string, string> = {
+  purchasing: 'Purchasing',
+  finance: 'Finance',
+  vendors: 'Vendors & Partners',
+  approvals: 'Approvals',
+  master: 'Master Data',
+  admin: 'Administration',
+  settings: 'Workflow & Approval',
+  documents: 'Documents',
+  portal: 'Supplier Portal',
+  notifications: 'Notifications',
+  profile: 'Account',
+  dashboard: 'Overview',
 }
 
 export function PageHeader({
@@ -263,36 +309,32 @@ export function PageHeader({
 }) {
   const path = usePathname()
   const segments = path ? path.split('/').filter(Boolean) : []
-  const category =
-    segments[0] === 'master'
-      ? 'Master Data'
-      : segments[0] === 'admin'
-        ? 'Administration'
-        : segments[0] === 'settings'
-          ? 'Workflow & Approval'
-          : segments[0] === 'documents'
-            ? 'Documents'
-            : segments[0] === 'portal'
-              ? 'Supplier Portal'
-              : 'Overview'
+  const inPortal = segments[0] === 'portal'
+  const homeHref = inPortal ? '/portal' : '/dashboard'
+  const isHome = path === '/dashboard' || path === '/portal'
+  const category = SECTION_LABELS[segments[0] ?? ''] ?? 'Workspace'
 
   return (
-    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div>
+    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0">
         <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-1.5 text-xs font-medium text-gray-500">
-          <Link href="/dashboard" className="inline-flex items-center gap-1 hover:text-brand-600 transition-colors">
+          <Link href={homeHref} className="inline-flex items-center gap-1 hover:text-brand-600 transition-colors">
             <Home className="h-3.5 w-3.5" />
-            <span>Home</span>
+            <span>{inPortal ? 'Portal' : 'Home'}</span>
           </Link>
+          {!isHome && (
+            <>
+              <ChevronRight className="h-3 w-3 text-gray-400" />
+              <span>{category}</span>
+            </>
+          )}
           <ChevronRight className="h-3 w-3 text-gray-400" />
-          <span>{category}</span>
-          <ChevronRight className="h-3 w-3 text-gray-400" />
-          <span className="font-semibold text-gray-800">{title}</span>
+          <span className="truncate font-semibold text-gray-800">{isHome ? 'Overview' : title}</span>
         </nav>
-        <h1 className="text-xl font-bold tracking-tight text-gray-900">{title}</h1>
-        {subtitle && <p className="mt-0.5 text-xs text-gray-500">{subtitle}</p>}
+        <h1 className="truncate text-xl font-bold tracking-tight text-gray-900">{title}</h1>
+        {subtitle && <p className="mt-0.5 text-xs text-gray-500 leading-relaxed">{subtitle}</p>}
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </div>
   )
 }
@@ -303,24 +345,26 @@ export const Card = ({
   children,
   actions,
   className,
+  noPadding,
 }: {
   title?: string
   desc?: string
   children: ReactNode
   actions?: ReactNode
   className?: string
+  noPadding?: boolean
 }) => (
-  <section className={cx('rounded-xl border border-gray-200 bg-white shadow-theme-xs', className)}>
+  <section className={cx('overflow-hidden rounded-xl border border-gray-200 bg-white shadow-theme-xs', className)}>
     {title && (
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 px-5 py-3.5">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 bg-gray-50/40 px-5 py-3.5">
+        <div className="min-w-0">
           <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
           {desc && <p className="mt-0.5 text-xs text-gray-500">{desc}</p>}
         </div>
-        {actions && <div className="flex items-center gap-2">{actions}</div>}
+        {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
       </div>
     )}
-    <div className="p-5">{children}</div>
+    <div className={noPadding ? '' : 'p-5'}>{children}</div>
   </section>
 )
 

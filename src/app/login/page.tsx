@@ -14,10 +14,8 @@ import {
   KeyRound,
   Shield,
   ShoppingCart,
-  Sparkles,
   Truck,
   UserCheck,
-  Zap,
 } from 'lucide-react'
 import { AuthLayout } from '@/components/auth-layout'
 import { api } from '@/lib/api'
@@ -32,23 +30,20 @@ interface DemoAccount {
   role: string
   email: string
   password: string
-  badgeColor: string
   description: string
   icon: 'admin' | 'buyer' | 'approver' | 'finance' | 'vendor' | 'mitra'
 }
 
 const DEMO_ACCOUNTS: DemoAccount[] = [
-  // --- INTERNAL ACCOUNTS ---
   {
     id: 'admin',
     type: 'internal',
     label: 'Admin',
     name: 'Administrator',
-    role: 'Superadmin / Procurement Lead',
+    role: 'Superadmin',
     email: 'admin@purchasing.local',
     password: 'Password123!',
-    badgeColor: 'border-blue-200 bg-blue-50 text-blue-700',
-    description: 'Akses penuh kontrol sistem, seluruh 15 dokumen transaksi, konfigurasi workflow, data master & log audit.',
+    description: 'Akses penuh master data, 15 dokumen transaksi, approval & audit log.',
     icon: 'admin',
   },
   {
@@ -56,11 +51,10 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
     type: 'internal',
     label: 'Buyer',
     name: 'Budi Buyer',
-    role: 'Purchasing Specialist / Buyer',
+    role: 'Purchasing Staff',
     email: 'buyer@purchasing.local',
     password: 'Password123!',
-    badgeColor: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-    description: 'Memiliki 3 PR (PR-0001 Disetujui, PR-0002 Menunggu Approval, PR-0003 Draft), 1 Tender RFQ, PO-0001/0002 & Kasbon CA.',
+    description: '3 PR aktif, 1 Tender RFQ, PO rilis & Kasbon perjalanan dinas.',
     icon: 'buyer',
   },
   {
@@ -68,11 +62,10 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
     type: 'internal',
     label: 'Approver',
     name: 'Siti Approver',
-    role: 'Department Head / Approver',
+    role: 'Dept Head',
     email: 'approver@purchasing.local',
     password: 'Password123!',
-    badgeColor: 'border-purple-200 bg-purple-700 bg-purple-50',
-    description: 'Memiliki 2 tugas approval aktif di Inbox: PR-2026-0002 (Laptop Engineer) & INV-2026-0001 (Tagihan Supplier) siap di-approve.',
+    description: '2 tugas approval aktif di Inbox: PR-2026-0002 & INV-2026-0001.',
     icon: 'approver',
   },
   {
@@ -80,25 +73,21 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
     type: 'internal',
     label: 'Finance',
     name: 'Fajar Finance',
-    role: 'Finance & Treasury Staff',
+    role: 'Finance & Treasury',
     email: 'finance@purchasing.local',
     password: 'Password123!',
-    badgeColor: 'border-amber-200 bg-amber-50 text-amber-700',
-    description: 'Memiliki Tagihan AP Vendor (INV-2026-0001 & 0002), bukti Outgoing Payment PAY-2026-0001, dan pencairan kasbon CA-2026-0001.',
+    description: 'Tagihan AP vendor, bukti Outgoing Payment & kasbon karyawan.',
     icon: 'finance',
   },
-
-  // --- VENDOR ACCOUNTS ---
   {
     id: 'vendor',
     type: 'vendor',
     label: 'PT Sumber Makmur',
     name: 'PT Sumber Makmur Sentosa',
-    role: 'Rekanan Supplier (Barang & Material)',
+    role: 'Supplier Material',
     email: 'vendor@supplier.com',
     password: 'Password123!',
-    badgeColor: 'border-teal-200 bg-teal-50 text-teal-700',
-    description: 'Portal Rekanan: Memiliki pesanan PO-2026-0001 baru siap di-Acknowledge, penawaran QUO-2026-0001, e-Invoice & bukti transfer.',
+    description: 'PO-2026-0001 siap di-Acknowledge, Quotation, e-Invoice & bukti bayar.',
     icon: 'vendor',
   },
   {
@@ -106,29 +95,29 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
     type: 'vendor',
     label: 'CV Mitra Jaya',
     name: 'CV Mitra Jaya Perkasa',
-    role: 'Rekanan Kontraktor (Jasa & Maintenance)',
+    role: 'Vendor Jasa',
     email: 'mitra@supplier.com',
     password: 'Password123!',
-    badgeColor: 'border-indigo-200 bg-indigo-50 text-indigo-700',
-    description: 'Portal Rekanan: Memiliki undangan Tender RFQ-2026-0001, draft penawaran QUO-2026-0002, dan PO-2026-0003 jasa servis AC.',
+    description: 'Undangan Tender RFQ-2026-0001, draft penawaran & PO-2026-0003.',
     icon: 'mitra',
   },
 ]
 
-function renderAccountIcon(icon: DemoAccount['icon']) {
+function AccountIcon({ icon, active }: { icon: DemoAccount['icon']; active?: boolean }) {
+  const cls = active ? 'h-4 w-4 text-brand-600' : 'h-4 w-4 text-gray-500'
   switch (icon) {
     case 'admin':
-      return <Shield className="h-4 w-4 text-blue-600" />
+      return <Shield className={cls} />
     case 'buyer':
-      return <ShoppingCart className="h-4 w-4 text-emerald-600" />
+      return <ShoppingCart className={cls} />
     case 'approver':
-      return <UserCheck className="h-4 w-4 text-purple-600" />
+      return <UserCheck className={cls} />
     case 'finance':
-      return <CreditCard className="h-4 w-4 text-amber-600" />
+      return <CreditCard className={cls} />
     case 'vendor':
-      return <Building2 className="h-4 w-4 text-teal-600" />
+      return <Building2 className={cls} />
     case 'mitra':
-      return <Truck className="h-4 w-4 text-indigo-600" />
+      return <Truck className={cls} />
   }
 }
 
@@ -144,7 +133,7 @@ function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [selectedDemoId, setSelectedDemoId] = useState<string | null>(null)
-  const [copiedKey, setCopiedKey] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     api('/auth/providers')
@@ -158,17 +147,13 @@ function LoginForm() {
     setPassword(acc.password)
     setSelectedDemoId(acc.id)
     setError('')
-
-    if (autoSubmit) {
-      handleLogin(undefined, acc.email, acc.password)
-    }
+    if (autoSubmit) handleLogin(undefined, acc.email, acc.password)
   }
 
-  const copyToClipboard = (text: string, key: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    navigator.clipboard.writeText(text)
-    setCopiedKey(key)
-    setTimeout(() => setCopiedKey(null), 1800)
+  const copyCredentials = (acc: DemoAccount) => {
+    navigator.clipboard.writeText(`${acc.email} / ${acc.password}`)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1600)
   }
 
   async function handleLogin(e?: React.FormEvent<HTMLFormElement>, overrideEmail?: string, overridePassword?: string) {
@@ -201,109 +186,66 @@ function LoginForm() {
   const activeDemoAccounts = DEMO_ACCOUNTS.filter((acc) =>
     isVendor ? acc.type === 'vendor' : acc.type === 'internal'
   )
+  const selectedAccount = DEMO_ACCOUNTS.find((a) => a.id === selectedDemoId) ?? null
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Workspace Role Switcher */}
-      <div className="flex rounded-xl bg-gray-100 p-1 text-xs font-semibold shadow-inner">
+      <div className="flex rounded-xl bg-gray-100 p-1 text-xs font-semibold">
         <button
           type="button"
           onClick={() => {
             setIsVendor(false)
             setError('')
-            if (selectedDemoId && DEMO_ACCOUNTS.find((a) => a.id === selectedDemoId)?.type === 'vendor') {
+            if (selectedAccount?.type === 'vendor') {
               setSelectedDemoId(null)
               setEmail('')
               setPassword('')
             }
           }}
-          className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 transition cursor-pointer ${
-            !isVendor ? 'bg-white text-gray-900 shadow-theme-xs font-bold' : 'text-gray-500 hover:text-gray-900'
+          className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2 transition cursor-pointer ${
+            !isVendor ? 'bg-white text-gray-900 shadow-theme-xs' : 'text-gray-500 hover:text-gray-900'
           }`}
         >
           <Shield className="h-3.5 w-3.5 text-brand-600" />
           <span>Internal Staff</span>
-          <span className="rounded-full bg-blue-100 px-1.5 py-0.2 text-[10px] font-semibold text-blue-700">4 Demo</span>
         </button>
         <button
           type="button"
           onClick={() => {
             setIsVendor(true)
             setError('')
-            if (selectedDemoId && DEMO_ACCOUNTS.find((a) => a.id === selectedDemoId)?.type === 'internal') {
+            if (selectedAccount?.type === 'internal') {
               setSelectedDemoId(null)
               setEmail('')
               setPassword('')
             }
           }}
-          className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 transition cursor-pointer ${
-            isVendor ? 'bg-white text-gray-900 shadow-theme-xs font-bold' : 'text-gray-500 hover:text-gray-900'
+          className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2 transition cursor-pointer ${
+            isVendor ? 'bg-white text-gray-900 shadow-theme-xs' : 'text-gray-500 hover:text-gray-900'
           }`}
         >
-          <Building2 className="h-3.5 w-3.5 text-teal-600" />
+          <Building2 className="h-3.5 w-3.5 text-brand-600" />
           <span>Vendor & Supplier</span>
-          <span className="rounded-full bg-teal-100 px-1.5 py-0.2 text-[10px] font-semibold text-teal-700">2 Demo</span>
         </button>
-      </div>
-
-      {/* Quick Demo Chips */}
-      <div className="rounded-xl border border-dashed border-brand-200 bg-brand-25/50 p-2.5">
-        <div className="flex items-center justify-between mb-1.5 px-0.5">
-          <div className="flex items-center gap-1.5 text-[11px] font-bold text-brand-900">
-            <Sparkles className="h-3.5 w-3.5 text-brand-600 animate-pulse" />
-            <span>Pilih Cepat Akun Demo {isVendor ? '(Vendor)' : '(Internal)'}:</span>
-          </div>
-          <span className="text-[10px] text-gray-500">Klik untuk isi instan</span>
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {activeDemoAccounts.map((acc) => {
-            const isSelected = selectedDemoId === acc.id
-            return (
-              <button
-                key={acc.id}
-                type="button"
-                onClick={() => selectDemoAccount(acc)}
-                className={`group flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
-                  isSelected
-                    ? 'border-brand-600 bg-brand-600 text-white shadow-theme-xs'
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-brand-300 hover:bg-brand-50/50'
-                }`}
-              >
-                {isSelected ? (
-                  <Check className="h-3 w-3 text-white" />
-                ) : (
-                  renderAccountIcon(acc.icon)
-                )}
-                <span>{acc.label}</span>
-              </button>
-            )
-          })}
-        </div>
       </div>
 
       {error && (
         <div
           role="alert"
-          className="flex items-start gap-2.5 rounded-xl border border-error-200 bg-error-50 p-3.5 text-xs text-error-700"
+          className="flex items-start gap-2.5 rounded-xl border border-error-200 bg-error-50 p-3 text-xs text-error-700"
         >
-          <AlertCircle className="h-4 w-4 shrink-0 text-error-600 mt-0.5" />
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-error-600" />
           <div className="min-w-0 flex-1 font-medium">{error}</div>
         </div>
       )}
 
       {/* Main Login Form */}
-      <form onSubmit={(e) => handleLogin(e)} className="space-y-4">
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label className="block text-xs font-semibold text-gray-700">
-              {isVendor ? 'Vendor Email' : 'Work Email'} <span className="text-error-500 font-bold">*</span>
-            </label>
-            {selectedDemoId && (
-              <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-1">
-                <Check className="h-3 w-3" /> Akun demo aktif
-              </span>
-            )}
-          </div>
+      <form onSubmit={(e) => handleLogin(e)} className="space-y-3.5">
+        <div className="space-y-1">
+          <label className="block text-xs font-semibold text-gray-700">
+            {isVendor ? 'Vendor Email' : 'Work Email'} <span className="font-bold text-error-500">*</span>
+          </label>
           <input
             name="email"
             type="email"
@@ -315,17 +257,14 @@ function LoginForm() {
               setSelectedDemoId(null)
             }}
             placeholder={isVendor ? 'vendor@supplier.com' : 'admin@purchasing.local'}
-            className="h-[42px] w-full rounded-lg border border-gray-300 bg-white px-3.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-theme-xs transition-colors focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
+            className="h-[40px] w-full rounded-lg border border-gray-300 bg-white px-3.5 text-sm text-gray-900 placeholder:text-gray-400 shadow-theme-xs transition-colors focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
           />
         </div>
 
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label className="block text-xs font-semibold text-gray-700">
-              Password <span className="text-error-500 font-bold">*</span>
-            </label>
-            <span className="text-[11px] text-gray-400">Default demo: Password123!</span>
-          </div>
+        <div className="space-y-1">
+          <label className="block text-xs font-semibold text-gray-700">
+            Password <span className="font-bold text-error-500">*</span>
+          </label>
           <div className="relative">
             <input
               name="password"
@@ -338,7 +277,7 @@ function LoginForm() {
                 setSelectedDemoId(null)
               }}
               placeholder="Masukkan password"
-              className="h-[42px] w-full rounded-lg border border-gray-300 bg-white pl-3.5 pr-10 text-sm text-gray-900 placeholder:text-gray-400 shadow-theme-xs transition-colors focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
+              className="h-[40px] w-full rounded-lg border border-gray-300 bg-white pl-3.5 pr-10 text-sm text-gray-900 placeholder:text-gray-400 shadow-theme-xs transition-colors focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
             />
             <button
               type="button"
@@ -361,10 +300,7 @@ function LoginForm() {
             />
             <span>Ingat saya</span>
           </label>
-          <Link
-            className="font-semibold text-brand-600 hover:text-brand-700 hover:underline"
-            href="/forgot-password"
-          >
+          <Link className="font-semibold text-brand-600 hover:text-brand-700 hover:underline" href="/forgot-password">
             Lupa password?
           </Link>
         </div>
@@ -372,129 +308,87 @@ function LoginForm() {
         <button
           type="submit"
           disabled={busy}
-          className="flex h-[42px] w-full items-center justify-center gap-2 rounded-lg bg-brand-600 text-sm font-semibold text-white shadow-theme-xs hover:bg-brand-700 active:scale-[0.99] disabled:opacity-50 transition-all cursor-pointer"
+          className="flex h-[40px] w-full items-center justify-center gap-2 rounded-lg bg-brand-600 text-sm font-semibold text-white shadow-theme-xs hover:bg-brand-700 active:scale-[0.99] disabled:opacity-50 transition-all cursor-pointer"
         >
-          {busy ? (
-            <span>Memproses Masuk…</span>
-          ) : (
-            <>
-              <Zap className="h-4 w-4 fill-white" />
-              <span>Masuk {isVendor ? 'Portal Rekanan' : 'Purchasing Workspace'}</span>
-            </>
-          )}
+          <span>{busy ? 'Memproses Masuk…' : `Masuk ${isVendor ? 'Portal Rekanan' : 'Workspace'}`}</span>
+          {!busy && <ArrowRight className="h-4 w-4" />}
         </button>
       </form>
 
-      {/* Demo Credentials Set Cards (Detailed Helper) */}
-      <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-4 space-y-3">
-        <div className="flex items-center justify-between border-b border-gray-200/80 pb-2.5">
-          <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-brand-600 text-white">
-              <KeyRound className="h-3.5 w-3.5" />
-            </div>
-            <div>
-              <h3 className="text-xs font-bold text-gray-900 leading-none">
-                Daftar Set Akun Demo ({isVendor ? 'Vendor' : 'Internal'})
-              </h3>
-              <p className="text-[11px] text-gray-500 mt-0.5">
-                Pilih profil untuk auto-fill atau langsung login
-              </p>
-            </div>
+      {/* Single Compact Demo Accounts Selector */}
+      <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-3.5 space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-gray-800">
+            <KeyRound className="h-3.5 w-3.5 text-brand-600" />
+            <span>Akun Demo {isVendor ? 'Vendor' : 'Internal'}</span>
           </div>
-          <span className="rounded bg-brand-50 border border-brand-200 px-2 py-0.5 text-[10px] font-semibold text-brand-700">
-            Demo Ready
-          </span>
+          <span className="text-[11px] text-gray-500">Klik untuk isi otomatis</span>
         </div>
 
-        <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-2">
           {activeDemoAccounts.map((acc) => {
             const isSelected = selectedDemoId === acc.id
             return (
-              <div
+              <button
                 key={acc.id}
+                type="button"
                 onClick={() => selectDemoAccount(acc)}
-                className={`group relative rounded-lg border p-3 transition-all cursor-pointer ${
+                className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-left transition-all cursor-pointer ${
                   isSelected
-                    ? 'border-brand-500 bg-brand-50/40 shadow-theme-xs ring-2 ring-brand-500/15'
+                    ? 'border-brand-500 bg-brand-50/70 ring-2 ring-brand-500/15'
                     : 'border-gray-200 bg-white hover:border-brand-300 hover:bg-gray-50'
                 }`}
               >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-start gap-2.5 min-w-0 flex-1">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 border border-gray-200 mt-0.5">
-                      {renderAccountIcon(acc.icon)}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-bold text-gray-900 group-hover:text-brand-600 transition-colors">
-                          {acc.name}
-                        </span>
-                        <span className={`inline-block rounded px-1.5 py-0.2 text-[10px] font-semibold border ${acc.badgeColor}`}>
-                          {acc.role}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-gray-500 mt-0.5 leading-snug">
-                        {acc.description}
-                      </p>
-
-                      {/* Credential Details */}
-                      <div className="mt-2 flex items-center gap-2 text-[11px] font-mono text-gray-600 bg-gray-50 rounded border border-gray-200 px-2 py-1 w-fit flex-wrap">
-                        <span className="text-gray-900 font-semibold">{acc.email}</span>
-                        <span className="text-gray-300">|</span>
-                        <span className="text-gray-500">{acc.password}</span>
-                        <button
-                          type="button"
-                          onClick={(e) => copyToClipboard(acc.email, `${acc.id}-email`, e)}
-                          title="Copy Email"
-                          className="text-gray-400 hover:text-brand-600 transition-colors ml-1"
-                        >
-                          {copiedKey === `${acc.id}-email` ? (
-                            <Check className="h-3 w-3 text-success-600" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-col gap-1 shrink-0 pt-0.5">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        selectDemoAccount(acc, true)
-                      }}
-                      disabled={busy}
-                      title="Isi form dan langsung masuk"
-                      className="inline-flex items-center justify-center gap-1 rounded-md bg-brand-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-theme-xs hover:bg-brand-700 active:scale-95 transition-all cursor-pointer"
-                    >
-                      <span>Masuk</span>
-                      <ArrowRight className="h-3 w-3" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        selectDemoAccount(acc, false)
-                      }}
-                      className="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-2 py-1 text-[11px] font-medium text-gray-600 hover:border-brand-300 hover:text-brand-600 transition-all cursor-pointer"
-                    >
-                      {isSelected ? 'Terisi ✓' : 'Pakai'}
-                    </button>
-                  </div>
+                <div
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border ${
+                    isSelected ? 'border-brand-200 bg-white' : 'border-gray-200 bg-gray-50'
+                  }`}
+                >
+                  <AccountIcon icon={acc.icon} active={isSelected} />
                 </div>
-              </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-xs font-semibold text-gray-900">{acc.label}</div>
+                  <div className="truncate text-[10px] text-gray-500">{acc.role}</div>
+                </div>
+              </button>
             )
           })}
         </div>
+
+        {selectedAccount && (
+          <div className="flex items-center justify-between gap-2 rounded-lg border border-brand-200 bg-white px-3 py-2 text-[11px]">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 font-mono text-gray-800">
+                <span className="truncate font-semibold">{selectedAccount.email}</span>
+                <span className="text-gray-300">/</span>
+                <span className="shrink-0 text-gray-500">{selectedAccount.password}</span>
+                <button
+                  type="button"
+                  onClick={() => copyCredentials(selectedAccount)}
+                  title="Salin kredensial"
+                  className="text-gray-400 hover:text-brand-600 cursor-pointer"
+                >
+                  {copied ? <Check className="h-3 w-3 text-success-600" /> : <Copy className="h-3 w-3" />}
+                </button>
+              </div>
+              <p className="mt-0.5 truncate text-gray-500">{selectedAccount.description}</p>
+            </div>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => selectDemoAccount(selectedAccount, true)}
+              className="shrink-0 rounded-md bg-brand-600 px-2.5 py-1.5 text-[11px] font-semibold text-white hover:bg-brand-700 transition-colors cursor-pointer"
+            >
+              Masuk →
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Microsoft SSO */}
       {sso && !isVendor && (
         <div>
-          <div className="relative mb-4 flex items-center justify-center">
+          <div className="relative mb-3 flex items-center justify-center">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200" />
             </div>
@@ -504,7 +398,7 @@ function LoginForm() {
           </div>
           <a
             href={`/api/auth/entra/start?next=${encodeURIComponent(safeNext(sp.get('next')) ?? '/dashboard')}`}
-            className="flex h-[42px] w-full items-center justify-center gap-2.5 rounded-lg border border-gray-300 bg-white text-xs font-semibold text-gray-700 shadow-theme-xs hover:bg-gray-50 transition"
+            className="flex h-[40px] w-full items-center justify-center gap-2.5 rounded-lg border border-gray-300 bg-white text-xs font-semibold text-gray-700 shadow-theme-xs hover:bg-gray-50 transition"
           >
             <svg className="h-4 w-4" viewBox="0 0 21 21">
               <rect x="1" y="1" width="9" height="9" fill="#f25022" />
@@ -518,13 +412,10 @@ function LoginForm() {
       )}
 
       {/* Vendor Onboarding Link */}
-      <div className="rounded-xl border border-gray-200 bg-gray-50 p-3.5 text-center">
-        <p className="text-xs text-gray-600">Rekanan atau supplier baru yang belum terdaftar?</p>
-        <Link
-          href="/portal/register"
-          className="mt-1 inline-block text-xs font-semibold text-brand-600 hover:text-brand-700 hover:underline"
-        >
-          Daftarkan akun vendor baru →
+      <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs">
+        <span className="text-gray-600">Rekanan atau supplier baru?</span>
+        <Link href="/portal/register" className="font-semibold text-brand-600 hover:text-brand-700 hover:underline">
+          Daftar akun vendor →
         </Link>
       </div>
     </div>
@@ -535,7 +426,7 @@ export default function LoginPage() {
   return (
     <AuthLayout
       title="Masuk ke Sistem"
-      subtitle="Akses purchasing workspace untuk staf internal atau portal mandiri rekanan vendor."
+      subtitle="Akses purchasing workspace untuk staf internal atau portal rekanan vendor."
     >
       <Suspense fallback={<div className="py-12 text-center text-sm text-gray-500">Memuat formulir login…</div>}>
         <LoginForm />

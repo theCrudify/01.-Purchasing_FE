@@ -382,16 +382,22 @@ function AppSidebar({
   const [hovered, setHovered] = useState(false)
   const sections = [...new Set(items.map((n) => n.section))]
 
+  const isNavActive = (href: string) =>
+    path === href || (href !== '/dashboard' && href !== '/portal' && path.startsWith(href + '/'))
+
+  const DEFAULT_OPEN = new Set(['Overview', 'Purchasing Documents', 'Procurement', 'Invoicing & Outgoing Payment', 'Account'])
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(sections.map((s) => [s, true]))
+    Object.fromEntries(
+      sections.map((s) => [
+        s,
+        DEFAULT_OPEN.has(s) || items.filter((n) => n.section === s).some((n) => isNavActive(n.href)),
+      ])
+    )
   )
 
   useEffect(() => {
     for (const s of sections) {
-      const hasActive = items
-        .filter((n) => n.section === s)
-        .some((n) => path === n.href || (n.href !== '/dashboard' && path.startsWith(n.href)))
-      if (hasActive) {
+      if (items.filter((n) => n.section === s).some((n) => isNavActive(n.href))) {
         setOpenSections((prev) => ({ ...prev, [s]: true }))
       }
     }
@@ -453,10 +459,8 @@ function AppSidebar({
         <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
           {sections.map((s) => {
             const sectionItems = items.filter((n) => n.section === s)
-            const hasActiveChild = sectionItems.some(
-              (n) => path === n.href || (n.href !== '/dashboard' && path.startsWith(n.href))
-            )
-            const isOpen = openSections[s] ?? true
+            const hasActiveChild = sectionItems.some((n) => isNavActive(n.href))
+            const isOpen = openSections[s] ?? DEFAULT_OPEN.has(s)
 
             return (
               <div key={s} className="space-y-1">
@@ -486,8 +490,7 @@ function AppSidebar({
                 {showFull && isOpen && (
                   <ul className="ml-4 space-y-0.5 border-l border-gray-200 pl-2.5">
                     {sectionItems.map((n) => {
-                      const isActive =
-                        path === n.href || (n.href !== '/dashboard' && path.startsWith(n.href))
+                      const isActive = isNavActive(n.href)
                       return (
                         <li key={n.href}>
                           <Link
@@ -525,12 +528,20 @@ export function Shell({ area, children }: { area: 'internal' | 'portal'; childre
 
 function ShellInner({ area, children }: { area: 'internal' | 'portal'; children: ReactNode }) {
   const me = useMe()
+  const router = useRouter()
   const [expanded, setExpanded] = useState(true)
   const [mobileOpen, setMobileOpen] = useState(false)
 
+  // UX gate only (the API enforces user type): BP users live in /portal, internal users in the app.
+  const home = me?.userType === 'BP' ? '/portal' : '/dashboard'
+  const wrongArea = !!me && (me.userType === 'BP') !== (area === 'portal')
+  useEffect(() => { if (wrongArea) router.replace(home) }, [wrongArea, home, router])
+
   const allowed = (n: NavItem) =>
     (n.area ?? 'internal') === area && (!n.perm || [n.perm].flat().some((p) => me?.permissions.includes(p)))
-  const items = ALL_NAV.filter(allowed)
+  const items = me ? ALL_NAV.filter(allowed) : []
+
+  if (wrongArea) return null
 
   return (
     <div className="min-h-screen bg-gray-50">

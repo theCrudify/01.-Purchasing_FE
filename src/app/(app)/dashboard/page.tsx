@@ -10,11 +10,10 @@ import {
   Database,
   FileCheck2,
   FileText,
+  Plus,
   ShieldCheck,
-  Sliders,
-  UserCheck,
 } from 'lucide-react'
-import { Badge, Button, Card, ErrorText, PageHeader, fmtDate, fmtDateTime, fmtMoney } from '@/components/ui'
+import { Badge, Button, Card, ErrorText, PageHeader, fmtDateTime, fmtMoney } from '@/components/ui'
 import { api, type Paged } from '@/lib/api'
 import { docHref } from '@/lib/doc-links'
 import { useMe } from '@/lib/me'
@@ -51,24 +50,23 @@ const DOC_TYPES: { code: string; name: string; href: string }[] = [
   { code: 'STL', name: 'Cash Advance Settlement', href: '/finance/settlements' },
   { code: 'RMB', name: 'Reimbursement Claim', href: '/finance/reimbursements' },
   { code: 'INV', name: 'AP Invoice (Tagihan Vendor)', href: '/finance/ap-invoices' },
-  { code: 'PAY', name: 'Outgoing Payment (OPAP / OPCA / Outgoing RMB)', href: '/finance/outgoing-ap' },
+  { code: 'PAY', name: 'Outgoing Payment', href: '/finance/outgoing-ap' },
   { code: 'ARI', name: 'AR Invoice (Tagihan Customer)', href: '/finance/ar-invoices' },
   { code: 'SVR', name: 'Supplier Verification', href: '/vendors/verifications' },
 ]
 
-const SHORTCUTS = [
-  { href: '/purchasing/pr', title: 'Purchase Request (PR)', desc: 'Permintaan pembelian barang/jasa umum', icon: FileText },
-  { href: '/purchasing/pr-raw-material', title: 'PR Raw Material', desc: 'Permintaan bahan baku produksi & resin', icon: Database },
-  { href: '/finance/cash-advances', title: 'Cash Advance & Settlement', desc: 'Kasbon operasional & pertanggungjawaban (STL)', icon: CreditCard },
-  { href: '/finance/reimbursements', title: 'Reimbursement (RMB)', desc: 'Klaim biaya karyawan & operasional', icon: FileCheck2 },
-  { href: '/finance/ap-invoices', title: 'AP Invoice & OP AP Invoice', desc: 'Tagihan supplier & pembayaran OPAP', icon: ShieldCheck },
-  { href: '/finance/ar-invoices', title: 'AR Invoice (ARI)', desc: 'Penagihan penjualan & piutang customer', icon: Sliders },
+const QUICK_CREATE = [
+  { href: '/purchasing/pr/new', title: 'Buat Purchase Request', desc: 'Ajukan pembelian barang atau jasa', icon: FileText },
+  { href: '/purchasing/rfq/new', title: 'Terbitkan Tender (RFQ)', desc: 'Undang rekanan untuk penawaran harga', icon: Database },
+  { href: '/purchasing/po/new', title: 'Buat Purchase Order', desc: 'Terbitkan PO langsung ke supplier', icon: CreditCard },
+  { href: '/vendors/verifications', title: 'Verifikasi Vendor', desc: 'Review onboarding rekanan baru', icon: ShieldCheck },
 ]
 
 export default function Dashboard() {
   const me = useMe()
   const [d, setD] = useState<DashboardData | null>(null)
   const [tasks, setTasks] = useState<ApprovalTask[]>([])
+  const [showAllTypes, setShowAllTypes] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -103,32 +101,45 @@ export default function Dashboard() {
         .reduce((acc, curr) => acc + Number(curr.n), 0)
     : 0
 
+  const summaryRows = DOC_TYPES.map((dt) => {
+    const rows = d?.myDocuments.filter((x) => x.docType === dt.code) ?? []
+    const draft = rows
+      .filter((x) => ['DRAFT', 'RETURNED', 'REVISION_REQUIRED'].includes(x.status))
+      .reduce((a, b) => a + Number(b.n), 0)
+    const pending = rows
+      .filter((x) => ['PENDING_APPROVAL', 'SUBMITTED'].includes(x.status))
+      .reduce((a, b) => a + Number(b.n), 0)
+    const approved = rows
+      .filter((x) => ['APPROVED', 'ISSUED', 'POSTED', 'PAID'].includes(x.status))
+      .reduce((a, b) => a + Number(b.n), 0)
+    const total = rows.reduce((a, b) => a + Number(b.n), 0)
+    return { ...dt, draft, pending, approved, total }
+  })
+
+  const visibleSummary = showAllTypes || summaryRows.every((r) => r.total === 0)
+    ? summaryRows
+    : summaryRows.filter((r) => r.total > 0)
+
   return (
     <div className="space-y-6">
       <PageHeader
         title={`Dashboard${me ? ` — ${me.displayName}` : ''}`}
-        subtitle="Overview of your pending approval tasks, procurement document pipeline, and system notifications."
+        subtitle="Ringkasan tugas persetujuan, status dokumen pengadaan, dan notifikasi terbaru."
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <Link href="/purchasing/pr">
+          <>
+            <Link href="/purchasing/pr/new">
               <Button>
-                <FileText className="h-4 w-4" />
-                <span>+ Buat Purchase Request</span>
+                <Plus className="h-4 w-4" />
+                <span>Buat Purchase Request</span>
               </Button>
             </Link>
             <Link href="/purchasing/po">
               <Button variant="secondary">
-                <CreditCard className="h-4 w-4" />
+                <FileCheck2 className="h-4 w-4" />
                 <span>Purchase Orders</span>
               </Button>
             </Link>
-            <Link href="/approvals">
-              <Button variant="secondary">
-                <FileCheck2 className="h-4 w-4" />
-                <span>Approvals ({d?.pendingApprovals ?? 0})</span>
-              </Button>
-            </Link>
-          </div>
+          </>
         }
       />
 
@@ -141,14 +152,14 @@ export default function Dashboard() {
           className="group rounded-xl border border-gray-200 bg-white p-5 shadow-theme-xs hover:border-brand-300 transition-colors"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
               Pending My Approval
             </span>
             <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-700 group-hover:border-brand-200 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
               <Clock className="h-4 w-4" />
             </div>
           </div>
-          <p className="mt-3 text-2xl font-bold text-gray-900">{d?.pendingApprovals ?? 0}</p>
+          <p className="mt-3 text-2xl font-bold tabular-nums text-gray-900">{d?.pendingApprovals ?? 0}</p>
           <p className="mt-1 flex items-center gap-1 text-xs font-medium text-brand-600">
             <span>Review pending tasks</span>
             <ArrowRight className="h-3 w-3" />
@@ -157,14 +168,14 @@ export default function Dashboard() {
 
         <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-theme-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
               My Total Documents
             </span>
             <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-700">
               <FileText className="h-4 w-4" />
             </div>
           </div>
-          <p className="mt-3 text-2xl font-bold text-gray-900">{totalMyDocs}</p>
+          <p className="mt-3 text-2xl font-bold tabular-nums text-gray-900">{totalMyDocs}</p>
           <p className="mt-1 text-xs text-gray-500">
             {pendingMyDocs} in approval · {draftMyDocs} draft
           </p>
@@ -172,14 +183,14 @@ export default function Dashboard() {
 
         <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-theme-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
               Approved Documents
             </span>
             <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-700">
               <CheckCircle2 className="h-4 w-4" />
             </div>
           </div>
-          <p className="mt-3 text-2xl font-bold text-gray-900">{approvedDocs}</p>
+          <p className="mt-3 text-2xl font-bold tabular-nums text-gray-900">{approvedDocs}</p>
           <p className="mt-1 text-xs text-gray-500">
             {totalMyDocs > 0 ? `${Math.round((approvedDocs / totalMyDocs) * 100)}% completion rate` : 'No documents submitted yet'}
           </p>
@@ -190,14 +201,14 @@ export default function Dashboard() {
           className="group rounded-xl border border-gray-200 bg-white p-5 shadow-theme-xs hover:border-brand-300 transition-colors"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
               Unread Notifications
             </span>
             <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-700 group-hover:border-brand-200 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
               <Bell className="h-4 w-4" />
             </div>
           </div>
-          <p className="mt-3 text-2xl font-bold text-gray-900">{d?.unreadNotifications ?? 0}</p>
+          <p className="mt-3 text-2xl font-bold tabular-nums text-gray-900">{d?.unreadNotifications ?? 0}</p>
           <p className="mt-1 flex items-center gap-1 text-xs font-medium text-brand-600">
             <span>View notification feed</span>
             <ArrowRight className="h-3 w-3" />
@@ -205,20 +216,20 @@ export default function Dashboard() {
         </Link>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-12 gap-6">
-        {/* Left 8 Columns: Pending Approvals Table & Document Pipeline Summary Table */}
+      {/* Main Content Grid: 8/4 balanced columns */}
+      <div className="grid grid-cols-12 gap-6 items-start">
         <div className="col-span-12 space-y-6 xl:col-span-8">
           <Card
+            noPadding
             title="Waiting for My Approval"
-            desc="Documents currently assigned to you or delegated to your inbox."
+            desc="Dokumen yang saat ini ditugaskan atau didelegasikan ke kotak masuk Anda."
             actions={
               <Link href="/approvals" className="text-xs font-semibold text-brand-600 hover:underline">
                 View all →
               </Link>
             }
           >
-            <div className="overflow-x-auto -mx-5 -my-5">
+            <div className="overflow-x-auto">
               <table className="min-w-full text-left text-sm">
                 <thead className="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-500">
                   <tr>
@@ -226,7 +237,7 @@ export default function Dashboard() {
                     <th className="px-4 py-3">Title</th>
                     <th className="px-4 py-3">Requester</th>
                     <th className="px-4 py-3">Step</th>
-                    <th className="px-4 py-3">Amount</th>
+                    <th className="px-4 py-3 text-right">Amount</th>
                     <th className="px-5 py-3 text-right">Action</th>
                   </tr>
                 </thead>
@@ -234,25 +245,25 @@ export default function Dashboard() {
                   {tasks.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="px-5 py-8 text-center text-xs text-gray-500">
-                        No approval tasks currently waiting for your decision.
+                        Tidak ada dokumen yang menunggu persetujuan Anda saat ini.
                       </td>
                     </tr>
                   ) : (
                     tasks.map((t) => (
                       <tr key={t.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-5 py-3 whitespace-nowrap">
-                          <span className="rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs font-semibold text-gray-700 mr-2">
+                          <span className="mr-2 rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-gray-700">
                             {t.docType}
                           </span>
                           <span className="font-semibold text-gray-900">{t.docNo}</span>
                         </td>
-                        <td className="px-4 py-3 max-w-[200px] truncate text-gray-700">{t.title}</td>
-                        <td className="px-4 py-3 text-xs text-gray-600">{t.ownerName}</td>
-                        <td className="px-4 py-3">
+                        <td className="max-w-[200px] truncate px-4 py-3 text-gray-700">{t.title}</td>
+                        <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">{t.ownerName}</td>
+                        <td className="px-4 py-3 whitespace-nowrap">
                           <Badge value="PENDING" />
                           <span className="ml-1.5 text-xs text-gray-600">{t.stepName}</span>
                         </td>
-                        <td className="px-4 py-3 text-xs font-semibold text-gray-900 whitespace-nowrap">
+                        <td className="px-4 py-3 text-right text-xs font-semibold tabular-nums text-gray-900 whitespace-nowrap">
                           {fmtMoney(t.totalAmount, t.currencyCode)}
                         </td>
                         <td className="px-5 py-3 text-right">
@@ -273,64 +284,63 @@ export default function Dashboard() {
           </Card>
 
           <Card
+            noPadding
             title="Document Summary by Type & Status"
-            desc="Distribution of your authored documents across procurement stages."
+            desc="Distribusi dokumen yang Anda buat berdasarkan tahap persetujuan."
+            actions={
+              summaryRows.some((r) => r.total > 0) && summaryRows.some((r) => r.total === 0) ? (
+                <button
+                  type="button"
+                  onClick={() => setShowAllTypes((v) => !v)}
+                  className="text-xs font-semibold text-brand-600 hover:underline cursor-pointer"
+                >
+                  {showAllTypes ? 'Active types only' : `Show all (${summaryRows.length})`}
+                </button>
+              ) : undefined
+            }
           >
-            <div className="overflow-x-auto -mx-5 -my-5">
+            <div className="overflow-x-auto">
               <table className="min-w-full text-left text-sm">
                 <thead className="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-500">
                   <tr>
                     <th className="px-5 py-3">Code</th>
                     <th className="px-4 py-3">Document Type</th>
                     <th className="px-4 py-3 text-center">Draft / Returned</th>
-                    <th className="px-4 py-3 text-center">Pending Approval</th>
+                    <th className="px-4 py-3 text-center">Pending</th>
                     <th className="px-4 py-3 text-center">Approved / Issued</th>
                     <th className="px-5 py-3 text-right">Total</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {DOC_TYPES.map((dt) => {
-                    const rows = d?.myDocuments.filter((x) => x.docType === dt.code) ?? []
-                    const draft = rows
-                      .filter((x) => ['DRAFT', 'RETURNED', 'REVISION_REQUIRED'].includes(x.status))
-                      .reduce((a, b) => a + Number(b.n), 0)
-                    const pending = rows
-                      .filter((x) => ['PENDING_APPROVAL', 'SUBMITTED'].includes(x.status))
-                      .reduce((a, b) => a + Number(b.n), 0)
-                    const approved = rows
-                      .filter((x) => ['APPROVED', 'ISSUED', 'POSTED', 'PAID'].includes(x.status))
-                      .reduce((a, b) => a + Number(b.n), 0)
-                    const total = rows.reduce((a, b) => a + Number(b.n), 0)
-                    return (
-                      <tr key={dt.code} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-5 py-3">
-                          <span className="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-2 py-0.5 font-mono text-xs font-semibold text-gray-800">
-                            {dt.code}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 font-medium text-gray-800">
-                          <Link href={dt.href} className="hover:text-brand-600 hover:underline">
-                            {dt.name}
-                          </Link>
-                        </td>
-                        <td className="px-4 py-3 text-center text-xs font-medium text-gray-600">{draft}</td>
-                        <td className="px-4 py-3 text-center text-xs font-medium text-gray-600">{pending}</td>
-                        <td className="px-4 py-3 text-center text-xs font-medium text-gray-600">{approved}</td>
-                        <td className="px-5 py-3 text-right font-semibold text-gray-900">{total}</td>
-                      </tr>
-                    )
-                  })}
+                  {visibleSummary.map((dt) => (
+                    <tr key={dt.code} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-5 py-3">
+                        <span className="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-gray-800">
+                          {dt.code}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-medium text-gray-800">
+                        <Link href={dt.href} className="hover:text-brand-600 hover:underline">
+                          {dt.name}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3 text-center text-xs font-medium tabular-nums text-gray-600">{dt.draft}</td>
+                      <td className="px-4 py-3 text-center text-xs font-medium tabular-nums text-gray-600">{dt.pending}</td>
+                      <td className="px-4 py-3 text-center text-xs font-medium tabular-nums text-gray-600">{dt.approved}</td>
+                      <td className="px-5 py-3 text-right font-semibold tabular-nums text-gray-900">{dt.total}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
           </Card>
         </div>
 
-        {/* Right 4 Columns: Quick Shortcuts & Recent Notifications */}
+        {/* Right 4 Columns */}
         <div className="col-span-12 space-y-6 xl:col-span-4">
-          <Card title="Quick Access" desc="Frequently used modules and settings.">
+          <Card title="Quick Actions" desc="Mulai transaksi atau tinjauan baru.">
             <div className="divide-y divide-gray-100 -my-2">
-              {SHORTCUTS.map((s) => {
+              {QUICK_CREATE.map((s) => {
                 const Icon = s.icon
                 return (
                   <Link
@@ -338,7 +348,7 @@ export default function Dashboard() {
                     href={s.href}
                     className="group flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex min-w-0 items-center gap-3">
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-600 group-hover:border-brand-200 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
                         <Icon className="h-4 w-4" />
                       </div>
@@ -358,7 +368,7 @@ export default function Dashboard() {
 
           <Card
             title="Recent Notifications"
-            desc="Latest system and approval updates."
+            desc="Pembaruan sistem dan persetujuan terbaru."
             actions={
               <Link href="/notifications" className="text-xs font-semibold text-brand-600 hover:underline">
                 All →
@@ -366,7 +376,7 @@ export default function Dashboard() {
             }
           >
             {!d?.recentNotifications.length ? (
-              <p className="py-6 text-center text-xs text-gray-400">No recent notifications.</p>
+              <p className="py-6 text-center text-xs text-gray-400">Belum ada notifikasi terbaru.</p>
             ) : (
               <ul className="divide-y divide-gray-100 -my-2">
                 {d.recentNotifications.map((n) => (

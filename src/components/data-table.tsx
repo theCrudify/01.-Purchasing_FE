@@ -65,12 +65,10 @@ export function DataTable<T extends object>({
   list,
   columns,
   actions,
-  title,
 }: {
   list: ReturnType<typeof useList<T>>
   columns: Column<T>[]
   actions?: ReactNode
-  title?: string
 }) {
   const { res, loading, error, sort, toggleSort, search, setSearch, page, setPage, pageSize, setPageSize, reload } =
     list
@@ -89,24 +87,24 @@ export function DataTable<T extends object>({
   for (let p = Math.max(1, winEnd - windowSize + 1); p <= winEnd; p++) pageNumbers.push(p)
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-sm">
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-theme-xs">
       {/* Top Toolbar */}
-      <div className="flex flex-col gap-3 border-b border-gray-200 bg-gray-50/70 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-2.5">
+      <div className="flex flex-col gap-3 border-b border-gray-200 bg-gray-50/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="relative w-full sm:w-72">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari kode, nama, atau keterangan…"
-              className="h-[40px] w-full rounded-lg border border-gray-300 bg-white pl-10 pr-9 text-sm text-gray-900 placeholder:text-gray-400 shadow-theme-xs transition-all focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
+              className="h-[38px] w-full rounded-lg border border-gray-300 bg-white pl-9 pr-8 text-sm text-gray-900 placeholder:text-gray-400 shadow-theme-xs transition-all focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/15"
               aria-label="Search"
             />
             {search && (
               <button
                 type="button"
                 onClick={() => setSearch('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
                 title="Clear search"
               >
                 <X className="h-3.5 w-3.5" />
@@ -117,17 +115,11 @@ export function DataTable<T extends object>({
           <button
             type="button"
             onClick={reload}
-            className="inline-flex h-[40px] w-[40px] items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 shadow-theme-xs hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            className="inline-flex h-[38px] w-[38px] items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 shadow-theme-xs hover:bg-gray-50 hover:text-gray-900 transition-colors"
             title="Muat ulang data"
           >
             <RotateCw className={`h-4 w-4 ${loading ? 'animate-spin text-brand-500' : ''}`} />
           </button>
-
-          {m && (
-            <span className="hidden md:inline-flex items-center rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-semibold text-gray-600">
-              Total: {m.total}
-            </span>
-          )}
         </div>
 
         {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}

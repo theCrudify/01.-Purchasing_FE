@@ -145,7 +145,7 @@ export function CrudPage<T extends object>({
                   list.setPage(1)
                 }}
                 aria-label="Active filter"
-                className="h-[40px] w-36"
+                className="w-36"
               >
                 <option value="">Semua Status</option>
                 <option value="true">Active Only</option>
@@ -153,7 +153,7 @@ export function CrudPage<T extends object>({
               </Select>
             )}
             {softDelete && can(perms.viewDeleted) && (
-              <label className="inline-flex h-[40px] items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 shadow-theme-xs cursor-pointer hover:bg-gray-50">
+              <label className="inline-flex h-[38px] items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 shadow-theme-xs cursor-pointer hover:bg-gray-50">
                 <input
                   type="checkbox"
                   checked={deleted}

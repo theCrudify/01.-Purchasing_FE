@@ -39,7 +39,7 @@ export function AuthLayout({
 
       <div className="flex min-h-screen flex-col lg:flex-row">
         {/* Left Side: Form Container */}
-        <div className="flex w-full flex-col justify-between p-6 sm:p-12 lg:w-1/2 lg:p-16">
+        <div className="flex w-full flex-col justify-between p-6 sm:p-10 lg:w-1/2 lg:px-14 lg:py-8">
           {/* Brand Logo */}
           <div className="flex items-center gap-2.5">
             <Link href="/" className="inline-flex items-center gap-2.5">
@@ -57,8 +57,8 @@ export function AuthLayout({
             </Link>
           </div>
 
-          <div className="mx-auto my-auto w-full max-w-md py-8">
-            <div className="mb-7 space-y-1.5">
+          <div className="mx-auto my-auto w-full max-w-md py-4">
+            <div className="mb-5 space-y-1">
               <h1 className="text-2xl font-bold tracking-tight text-gray-900">{title}</h1>
               <p className="text-sm text-gray-500">{subtitle}</p>
             </div>
