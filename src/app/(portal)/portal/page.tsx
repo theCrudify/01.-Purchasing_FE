@@ -7,9 +7,8 @@ import { api } from '@/lib/api'
 import { useMe } from '@/lib/me'
 
 type D = {
-  pendingApprovals: number
   unreadNotifications: number
-  myDocuments: { docType: string; status: string; n: number }[]
+  documents: { docType: string; status: string; n: number }[]
   recentNotifications: { id: string; title: string; readAt: string | null; createdAt: string }[]
 }
 
@@ -19,12 +18,12 @@ export default function PortalHome() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    api<{ data: D }>('/dashboard')
+    api<{ data: D }>('/dashboard/portal')
       .then((r) => setD(r.data))
       .catch((e) => setError(e.message))
   }, [])
 
-  const totalDocs = d ? d.myDocuments.reduce((a, b) => a + Number(b.n), 0) : 0
+  const totalDocs = d ? d.documents.reduce((a, b) => a + Number(b.n), 0) : 0
 
   return (
     <div className="space-y-6">

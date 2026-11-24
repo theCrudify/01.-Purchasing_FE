@@ -48,7 +48,7 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
     email: 'admin@purchasing.local',
     password: 'Password123!',
     badgeColor: 'border-blue-200 bg-blue-50 text-blue-700',
-    description: 'Akses penuh ke semua master data, PR, PO, workflow approval, users & audit trail.',
+    description: 'Akses penuh kontrol sistem, seluruh 15 dokumen transaksi, konfigurasi workflow, data master & log audit.',
     icon: 'admin',
   },
   {
@@ -60,7 +60,7 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
     email: 'buyer@purchasing.local',
     password: 'Password123!',
     badgeColor: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-    description: 'Buat Purchase Request (PR), terbitkan RFQ ke supplier, evaluasi quotation & terbitkan PO.',
+    description: 'Memiliki 3 PR (PR-0001 Disetujui, PR-0002 Menunggu Approval, PR-0003 Draft), 1 Tender RFQ, PO-0001/0002 & Kasbon CA.',
     icon: 'buyer',
   },
   {
@@ -72,7 +72,7 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
     email: 'approver@purchasing.local',
     password: 'Password123!',
     badgeColor: 'border-purple-200 bg-purple-700 bg-purple-50',
-    description: 'Persetujuan berjenjang untuk dokumen PR, PO, Kontrak & evaluasi supplier.',
+    description: 'Memiliki 2 tugas approval aktif di Inbox: PR-2026-0002 (Laptop Engineer) & INV-2026-0001 (Tagihan Supplier) siap di-approve.',
     icon: 'approver',
   },
   {
@@ -84,7 +84,7 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
     email: 'finance@purchasing.local',
     password: 'Password123!',
     badgeColor: 'border-amber-200 bg-amber-50 text-amber-700',
-    description: 'Verifikasi Invoice AP vendor, monitoring pencairan kasbon & outgoing payment.',
+    description: 'Memiliki Tagihan AP Vendor (INV-2026-0001 & 0002), bukti Outgoing Payment PAY-2026-0001, dan pencairan kasbon CA-2026-0001.',
     icon: 'finance',
   },
 
@@ -98,7 +98,7 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
     email: 'vendor@supplier.com',
     password: 'Password123!',
     badgeColor: 'border-teal-200 bg-teal-50 text-teal-700',
-    description: 'Portal Rekanan: Terima undangan RFQ, kirim Quotation harga, pantau PO & terbitkan e-Invoice.',
+    description: 'Portal Rekanan: Memiliki pesanan PO-2026-0001 baru siap di-Acknowledge, penawaran QUO-2026-0001, e-Invoice & bukti transfer.',
     icon: 'vendor',
   },
   {
@@ -110,7 +110,7 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
     email: 'mitra@supplier.com',
     password: 'Password123!',
     badgeColor: 'border-indigo-200 bg-indigo-50 text-indigo-700',
-    description: 'Portal Rekanan: Bidding tender proyek jasa, konfirmasi PO, konfirmasi pengiriman barang (GR).',
+    description: 'Portal Rekanan: Memiliki undangan Tender RFQ-2026-0001, draft penawaran QUO-2026-0002, dan PO-2026-0003 jasa servis AC.',
     icon: 'mitra',
   },
 ]

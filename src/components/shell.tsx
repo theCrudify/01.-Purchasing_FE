@@ -83,7 +83,7 @@ function AppHeader({
   const searchRef = useRef<HTMLInputElement>(null)
 
   const loadHeaderStats = () => {
-    api<{ data: { pendingApprovals: number; unreadNotifications: number; recentNotifications: any[] } }>('/dashboard')
+    api<{ data: { pendingApprovals: number; unreadNotifications: number; recentNotifications: any[] } }>(area === 'portal' ? '/dashboard/portal' : '/dashboard')
       .then((r) => {
         setPendingCount(r.data.pendingApprovals ?? 0)
         setUnreadCount(r.data.unreadNotifications ?? 0)
