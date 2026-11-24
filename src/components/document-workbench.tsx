@@ -1197,60 +1197,60 @@ export function DocumentWorkbench({
       <div className="space-y-6 pb-12 print:hidden">
         {/* Top Action Bar & Breadcrumb */}
         <PageHeader
-        title={isNew ? meta.titleNew : `${meta.titleDetail} — ${doc?.docNo ?? '(Draft)'}`}
-        subtitle={meta.subtitle}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <Link href={backHref ?? areaHref(meta.listHref)}>
-              <Button variant="secondary">
-                <ArrowLeft className="h-4 w-4" />
-                <span>Back to List</span>
-              </Button>
-            </Link>
+          title={isNew ? meta.titleNew : `${meta.titleDetail} — ${doc?.docNo ?? '(Draft)'}`}
+          subtitle={isNew ? meta.subtitle : undefined}
+          actions={
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Link href={backHref ?? areaHref(meta.listHref)}>
+                <Button variant="secondary" size="sm">
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  <span>Back</span>
+                </Button>
+              </Link>
 
-            {!isNew && doc && (
-              <Button variant="secondary" onClick={() => window.print()}>
-                <Printer className="h-4 w-4" />
-                <span>Print Voucher / Form</span>
-              </Button>
-            )}
+              {!isNew && doc && (
+                <Button variant="secondary" size="sm" onClick={() => window.print()}>
+                  <Printer className="h-3.5 w-3.5" />
+                  <span>Print</span>
+                </Button>
+              )}
 
-            {!isNew && isEditableStatus && !editMode && (
-              <Button onClick={() => setEditMode(true)}>
-                <Edit3 className="h-4 w-4" />
-                <span>Edit Document Form</span>
-              </Button>
-            )}
+              {!isNew && isEditableStatus && !editMode && (
+                <Button variant="secondary" size="sm" onClick={() => setEditMode(true)}>
+                  <Edit3 className="h-3.5 w-3.5" />
+                  <span>Edit</span>
+                </Button>
+              )}
 
-            {!isNew && isEditableStatus && !editMode && (
-              <Button onClick={() => handleSave(true)} disabled={busy}>
-                <Send className="h-4 w-4" />
-                <span>Submit for Approval</span>
-              </Button>
-            )}
+              {!isNew && isEditableStatus && !editMode && (
+                <Button size="sm" onClick={() => handleSave(true)} disabled={busy}>
+                  <Send className="h-3.5 w-3.5" />
+                  <span>Submit</span>
+                </Button>
+              )}
 
-            {editMode && isEditableStatus && (
-              <>
-                {!isNew && (
-                  <Button variant="secondary" onClick={() => setEditMode(false)}>
-                    Cancel Edit
+              {editMode && isEditableStatus && (
+                <>
+                  {!isNew && (
+                    <Button variant="secondary" size="sm" onClick={() => setEditMode(false)}>
+                      Cancel
+                    </Button>
+                  )}
+                  <Button variant="secondary" size="sm" onClick={() => handleSave(false)} disabled={busy}>
+                    <Save className="h-3.5 w-3.5" />
+                    <span>{busy ? 'Saving…' : 'Save Draft'}</span>
                   </Button>
-                )}
-                <Button variant="secondary" onClick={() => handleSave(false)} disabled={busy}>
-                  <Save className="h-4 w-4" />
-                  <span>{busy ? 'Saving…' : 'Save as Draft'}</span>
-                </Button>
-                <Button onClick={() => handleSave(true)} disabled={busy}>
-                  <Send className="h-4 w-4" />
-                  <span>{busy ? 'Submitting…' : 'Save & Submit Approval'}</span>
-                </Button>
-              </>
-            )}
+                  <Button size="sm" onClick={() => handleSave(true)} disabled={busy}>
+                    <Send className="h-3.5 w-3.5" />
+                    <span>{busy ? 'Submitting…' : 'Save & Submit'}</span>
+                  </Button>
+                </>
+              )}
 
-            {!isNew && doc && <DocumentActions doc={doc} onDone={reload} />}
-          </div>
-        }
-      />
+              {!isNew && doc && <DocumentActions doc={doc} onDone={reload} />}
+            </div>
+          }
+        />
 
       <ErrorText error={error} />
       {successMsg && (

@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, type ReactNode } from 'react'
-import { CheckCircle2, Download, Eye, FileText, MessageSquare, Paperclip, RotateCcw, Send, Trash2, Upload, XCircle } from 'lucide-react'
+import { CheckCircle2, Download, Eye, FileText, MessageSquare, MoreHorizontal, Paperclip, RotateCcw, Send, Trash2, Upload, XCircle } from 'lucide-react'
 import { api, del, post } from '@/lib/api'
 import { useMe } from '@/lib/me'
 import { Badge, Button, Card, ErrorText, Field, Input, Modal, PageHeader, Select, Textarea, fmtDate, fmtDateTime, fmtMoney } from '../ui'
@@ -574,8 +574,10 @@ export function DocumentActions({
   cancellable?: string[]
 }) {
   const me = useMe()
+  const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const run = async (path: string, needReason = true) => {
+    setOpen(false)
     const reason = needReason ? prompt('Masukkan alasan:') : ''
     if (needReason && !reason) return
     setError(null)
@@ -587,34 +589,79 @@ export function DocumentActions({
     }
   }
   const canDel = me?.permissions.includes('DOC.DELETE')
+  const canWithdraw = !doc.isDeleted && doc.isOwner && doc.status === 'PENDING_APPROVAL'
+  const canCancel = !doc.isDeleted && (doc.isOwner || canDel) && cancellable.includes(doc.status)
+  const canDelete =
+    !doc.isDeleted &&
+    ((doc.isOwner && doc.status === 'DRAFT') ||
+      (canDel && ['DRAFT', 'CANCELLED', 'REJECTED', 'WITHDRAWN', 'NOT_AWARDED'].includes(doc.status)))
+  const canRestore = doc.isDeleted && !!canDel
+
+  if (!canWithdraw && !canCancel && !canDelete && !canRestore) return null
+
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {!doc.isDeleted && doc.isOwner && doc.status === 'PENDING_APPROVAL' && (
-        <Button variant="secondary" onClick={() => run('withdraw')}>
-          Tarik Pengajuan (Withdraw)
-        </Button>
+    <div className="relative">
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => setOpen((o) => !o)}
+        aria-label="More actions"
+        title="Aksi lainnya"
+        className="px-2"
+      >
+        <MoreHorizontal className="h-4 w-4" />
+      </Button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 z-50 mt-1.5 w-52 overflow-hidden rounded-xl border border-gray-200 bg-white p-1 shadow-theme-lg">
+            {canWithdraw && (
+              <button
+                type="button"
+                onClick={() => run('withdraw')}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <RotateCcw className="h-3.5 w-3.5 text-gray-500" />
+                <span>Tarik Pengajuan</span>
+              </button>
+            )}
+            {canCancel && (
+              <button
+                type="button"
+                onClick={() => run('cancel')}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <RotateCcw className="h-3.5 w-3.5 text-warning-600" />
+                <span>Batalkan Dokumen</span>
+              </button>
+            )}
+            {canDelete && (
+              <button
+                type="button"
+                onClick={() => run('delete')}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-error-600 hover:bg-error-50 transition-colors cursor-pointer"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                <span>Hapus Dokumen</span>
+              </button>
+            )}
+            {canRestore && (
+              <button
+                type="button"
+                onClick={() => run('restore', false)}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-success-700 hover:bg-success-50 transition-colors cursor-pointer"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span>Pulihkan (Restore)</span>
+              </button>
+            )}
+          </div>
+        </>
       )}
-      {!doc.isDeleted && (doc.isOwner || canDel) && cancellable.includes(doc.status) && (
-        <Button variant="secondary" onClick={() => run('cancel')}>
-          Batalkan Dokumen
-        </Button>
-      )}
-      {!doc.isDeleted &&
-        ((doc.isOwner && doc.status === 'DRAFT') ||
-          (canDel && ['DRAFT', 'CANCELLED', 'REJECTED', 'WITHDRAWN', 'NOT_AWARDED'].includes(doc.status))) && (
-          <Button variant="danger" onClick={() => run('delete')}>
-            <Trash2 className="h-4 w-4" />
-            <span>Hapus</span>
-          </Button>
-        )}
-      {doc.isDeleted && canDel && (
-        <Button variant="secondary" onClick={() => run('restore', false)}>
-          <RotateCcw className="h-4 w-4" />
-          <span>Pulihkan (Restore)</span>
-        </Button>
-      )}
+
       {error && (
-        <span role="alert" className="text-xs font-medium text-error-600">
+        <span role="alert" className="ml-2 text-xs font-medium text-error-600">
           {error}
         </span>
       )}
