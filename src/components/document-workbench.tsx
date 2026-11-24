@@ -1260,6 +1260,115 @@ export function DocumentWorkbench({
         </div>
       )}
 
+      {/* Mock MUFG Corporate Banking Gateway Panel (Outgoing Payments) */}
+      {(module === 'OPAP' || module === 'OPCA' || module === 'OPRMB') && !isNew && doc && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand-200 bg-brand-50/50 px-4 py-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-brand-900">
+                MUFG Corporate Banking Gateway (Mock)
+              </span>
+              <Badge value={doc.status} />
+            </div>
+            <p className="mt-0.5 text-xs text-gray-600">
+              {(doc as any).detail?.BankReference
+                ? `Bank Ref: ${(doc as any).detail.BankReference} · Batch: ${(doc as any).detail.BankBatchNo ?? '—'}`
+                : (doc as any).detail?.FailureReason
+                  ? `Bank Error: ${(doc as any).detail.FailureReason}`
+                  : 'Simulasi transfer otomatis MUFG atau proses kliring bank bertahap.'}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {['APPROVED', 'FAILED'].includes(doc.status) && (
+              <>
+                <Button
+                  size="sm"
+                  disabled={busy}
+                  onClick={async () => {
+                    setBusy(true)
+                    setError(null)
+                    try {
+                      await post(`/payments/${doc.id}/mufg`, { mode: 'AUTO' })
+                      setSuccessMsg('Mock MUFG Auto-Pay berhasil! Dana ditransfer & status tagihan diperbarui.')
+                      reload()
+                    } catch (e) {
+                      setError((e as Error).message)
+                    } finally {
+                      setBusy(false)
+                    }
+                  }}
+                >
+                  <span>Auto-Pay MUFG (Instant)</span>
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={busy}
+                  onClick={async () => {
+                    setBusy(true)
+                    setError(null)
+                    try {
+                      await post(`/payments/${doc.id}/mufg`, { mode: 'SEND' })
+                      setSuccessMsg('Instruksi transfer dikirim ke gateway MUFG (SENT TO BANK).')
+                      reload()
+                    } catch (e) {
+                      setError((e as Error).message)
+                    } finally {
+                      setBusy(false)
+                    }
+                  }}
+                >
+                  <span>Kirim ke Bank (Step)</span>
+                </Button>
+              </>
+            )}
+            {doc.status === 'SENT_TO_BANK' && (
+              <>
+                <Button
+                  size="sm"
+                  disabled={busy}
+                  onClick={async () => {
+                    setBusy(true)
+                    setError(null)
+                    try {
+                      await post(`/payments/${doc.id}/mufg`, { mode: 'COMPLETE' })
+                      setSuccessMsg('Simulasi MUFG Sukses: Pembayaran COMPLETED.')
+                      reload()
+                    } catch (e) {
+                      setError((e as Error).message)
+                    } finally {
+                      setBusy(false)
+                    }
+                  }}
+                >
+                  <span>Simulasi Bank Sukses</span>
+                </Button>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  disabled={busy}
+                  onClick={async () => {
+                    setBusy(true)
+                    setError(null)
+                    try {
+                      await post(`/payments/${doc.id}/mufg`, { mode: 'FAIL' })
+                      setSuccessMsg('Simulasi MUFG Gagal: Status menjadi FAILED (bisa di-retry).')
+                      reload()
+                    } catch (e) {
+                      setError((e as Error).message)
+                    } finally {
+                      setBusy(false)
+                    }
+                  }}
+                >
+                  <span>Simulasi Bank Gagal</span>
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* PR_RAW Blue Notes Alert Box (1:1 from addPRRawMaterial.html) */}
       {module === 'PR_RAW' && (
         <div className="flex items-start gap-3 rounded-xl border border-brand-200 bg-brand-50/70 px-4 py-3.5 text-xs text-brand-900">
