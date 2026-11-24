@@ -1,6 +1,6 @@
-# 04.-Purchasing_FE
+# 01.-Purchasing_FE
 
-Frontend **Purchasing Portal + Vendor Portal** — Next.js 16 + Tailwind. Pasangan BE: `04.-Purchasing_BE`.
+Frontend **Purchasing Portal + Vendor Portal** — Next.js 16 + Tailwind. Pasangan BE: `01.-Purchasing_BE`.
 
 - `/api/*` di-proxy (Next rewrites) ke BE (`API_URL`), jadi cookie login tetap first-party dan tanpa CORS.
 - `src/app/(app)/…` area internal · `src/app/(portal)/portal/…` portal vendor · `login`, `portal/register`, `forgot-password` publik.
