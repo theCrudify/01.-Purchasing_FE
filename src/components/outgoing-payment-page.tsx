@@ -113,7 +113,6 @@ export function OutgoingPaymentPageView({
   const [targetRow, setTargetRow] = useState<any | null>(null)
   const [bankId, setBankId] = useState<number | null>(2) // BCA-IDR / MUFG-IDR
   const [presetKey, setPresetKey] = useState<string>('DP_30_70')
-  const [autoPayFirst, setAutoPayFirst] = useState(true)
   const [termBusy, setTermBusy] = useState(false)
   const [termErr, setTermErr] = useState<string | null>(null)
 
@@ -158,7 +157,6 @@ export function OutgoingPaymentPageView({
         targetDocId,
         companyBankAccountId: bankId,
         paymentMethod: 'TRANSFER',
-        autoPayFirst,
         schedule: activePreset.stages.map((s) => ({
           label: s.label,
           percent: s.percent,
@@ -392,15 +390,10 @@ export function OutgoingPaymentPageView({
             </div>
           )}
 
-          <label className="flex items-center gap-2 rounded-lg border border-brand-200 bg-brand-50/60 px-3.5 py-2.5 text-xs font-semibold text-brand-900 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={autoPayFirst}
-              onChange={(e) => setAutoPayFirst(e.target.checked)}
-              className="rounded border-gray-300 text-brand-600 focus:ring-brand-500"
-            />
-            <span>Langsung eksekusi Auto-Pay MUFG untuk Termin 1 (status tagihan otomatis menjadi PARTIALLY PAID / PAID)</span>
-          </label>
+          <p className="rounded-lg border border-brand-200 bg-brand-50/60 px-3.5 py-2.5 text-xs text-brand-900">
+            Setiap termin dibuat sebagai dokumen pembayaran dan langsung diajukan ke approval (manager → direktur).
+            Termin baru bisa dieksekusi lewat MUFG setelah disetujui.
+          </p>
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={() => setTermOpen(false)} disabled={termBusy}>
@@ -408,7 +401,7 @@ export function OutgoingPaymentPageView({
             </Button>
             <Button type="submit" disabled={termBusy || !targetDocId || targetRemaining <= 0}>
               <Zap className="h-4 w-4" />
-              <span>{termBusy ? 'Memproses…' : 'Buat Jadwal & Proses'}</span>
+              <span>{termBusy ? 'Memproses…' : 'Buat Jadwal & Ajukan Approval'}</span>
             </Button>
           </div>
         </form>
