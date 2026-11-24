@@ -46,6 +46,7 @@ import {
 import { api, patch, post } from '@/lib/api'
 import { useAreaHref } from '@/lib/area-href'
 import { useMe } from '@/lib/me'
+import { DocumentPrintView } from './document-print'
 
 export type WorkbenchModule =
   | 'PR'
@@ -1179,29 +1180,23 @@ export function DocumentWorkbench({
   const targetDocLines: any[] = linkedPayTargetDoc?.lines ?? []
 
   return (
-    <div className="space-y-6 pb-12 print:space-y-4 print:pb-0">
-      {/* Formal Print Letterhead (hidden on screen, shown on print) */}
-      <div className="hidden print:flex items-start justify-between border-b-2 border-gray-900 pb-3 mb-2">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-            Purchasing &amp; Procurement System
-          </p>
-          <h1 className="text-lg font-bold text-gray-900">
-            {meta.titleDetail.replace('Detail & Edit ', '')}
-          </h1>
-          <p className="text-xs text-gray-600">{form.title || doc?.title || ''}</p>
-        </div>
-        <div className="text-right">
-          <div className="font-mono text-sm font-bold text-gray-900">{doc?.docNo ?? '(DRAFT)'}</div>
-          <div className="mt-0.5 text-[11px] text-gray-600">
-            Tanggal: {fmtDate(form.docDate || doc?.docDate)} · Status: <strong>{doc?.status ?? 'DRAFT'}</strong>
-          </div>
-          <div className="text-[10px] text-gray-400">Dicetak: {new Date().toLocaleString('id-ID')}</div>
-        </div>
-      </div>
-
-      {/* Top Action Bar & Breadcrumb */}
-      <PageHeader
+    <>
+      <DocumentPrintView
+        module={module}
+        doc={doc}
+        form={form}
+        lines={lines}
+        targetDocLines={targetDocLines}
+        subtotal={subtotal}
+        vatAmount={vatAmount}
+        whtAmount={whtAmount}
+        freightAmount={freightAmount}
+        grandTotal={grandTotal}
+        terbilang={formatAmountInWords(grandTotal, form.currencyCode)}
+      />
+      <div className="space-y-6 pb-12 print:hidden">
+        {/* Top Action Bar & Breadcrumb */}
+        <PageHeader
         title={isNew ? meta.titleNew : `${meta.titleDetail} — ${doc?.docNo ?? '(Draft)'}`}
         subtitle={meta.subtitle}
         actions={
@@ -4132,6 +4127,7 @@ export function DocumentWorkbench({
           />
         )}
       </Modal>
-    </div>
+      </div>
+    </>
   )
 }
