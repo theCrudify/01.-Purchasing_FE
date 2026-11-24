@@ -68,7 +68,7 @@ export function DocumentPrintView({
       <div className="flex items-start justify-between border-b-2 border-gray-900 pb-3 mb-4">
         <div>
           <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-            PT KPIN Purchasing Indonesia
+            Purchasing &amp; Procurement Portal
           </div>
           <div className="text-base font-extrabold tracking-tight text-gray-900 mt-0.5">
             {heading.title}
