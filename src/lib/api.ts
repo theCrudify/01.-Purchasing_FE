@@ -8,17 +8,22 @@ async function raw(path: string, init?: RequestInit) {
   return fetch(`/api${path}`, { ...init, credentials: 'same-origin', headers: { ...(isForm ? {} : { 'content-type': 'application/json' }), ...init?.headers } })
 }
 
+// One refresh at a time: parallel 401s replaying the same refresh token look like token theft to the API, which ends the session.
+// shortcut: per tab only; two tabs refreshing in the same instant can still collide, use navigator.locks if that shows up.
+let refreshing: Promise<boolean> | null = null
+const refresh = () => (refreshing ??= raw('/auth/refresh', { method: 'POST' }).then((r) => r.ok, () => false).finally(() => { refreshing = null }))
+
 /** JSON fetch with one transparent refresh-and-retry on 401; redirects to /login when the session is gone. */
 export async function api<T = any>(path: string, init?: RequestInit): Promise<T> {
   let r = await raw(path, init)
   if (r.status === 401 && !path.startsWith('/auth/')) {
-    if ((await raw('/auth/refresh', { method: 'POST' })).ok) r = await raw(path, init)
+    if (await refresh()) r = await raw(path, init)
     else if (typeof window !== 'undefined' && !location.pathname.startsWith('/login') && !location.pathname.startsWith('/portal/register')) {
       location.href = `/login?next=${encodeURIComponent(location.pathname)}`
     }
   }
   const body = await r.json().catch(() => ({}))
-  if (!r.ok) throw new ApiError(r.status, body?.error?.code ?? 'ERROR', body?.error?.message ?? r.statusText, body?.error?.details)
+  if (!r.ok) throw new ApiError(r.status, body?.error?.code ?? 'ERROR', body?.error?.message ?? (r.statusText || `Server error (HTTP ${r.status}), coba lagi`), body?.error?.details)
   return body as T
 }
 

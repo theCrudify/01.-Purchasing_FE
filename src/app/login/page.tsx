@@ -170,12 +170,13 @@ function LoginForm() {
     }
 
     try {
-      await api('/auth/login', {
+      const r = await api('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email: targetEmail, password: targetPassword }),
       })
-      const me = await api('/auth/me')
-      router.replace(safeNext(sp.get('next')) ?? (me.data.userType === 'BP' ? '/portal' : '/dashboard'))
+      // older API builds don't return userType yet: fall back to /auth/me
+      const userType = r.data?.userType ?? (await api('/auth/me')).data.userType
+      router.replace(safeNext(sp.get('next')) ?? (userType === 'BP' ? '/portal' : '/dashboard'))
     } catch (err) {
       setError((err as Error).message)
     } finally {
