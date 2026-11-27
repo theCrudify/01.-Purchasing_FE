@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import { Badge, Button, Card, ErrorText, PageHeader, fmtDateTime, fmtMoney } from '@/components/ui'
+import { Legend, MonthlyBars, StatusBar } from '@/components/dashboard-charts'
 import { api, type Paged } from '@/lib/api'
 import { docHref } from '@/lib/doc-links'
 import { useMe } from '@/lib/me'
@@ -22,6 +23,7 @@ type DashboardData = {
   pendingApprovals: number
   unreadNotifications: number
   myDocuments: { docType: string; status: string; n: number }[]
+  monthly: { month: string; draft: number; pending: number; approved: number }[]
   recentNotifications: { id: string; title: string; readAt: string | null; createdAt: string }[]
 }
 
@@ -179,6 +181,7 @@ export default function Dashboard() {
           <p className="mt-1 text-xs text-gray-500">
             {pendingMyDocs} in approval · {draftMyDocs} draft
           </p>
+          <StatusBar className="mt-3 h-1.5" counts={{ draft: draftMyDocs, pending: pendingMyDocs, approved: approvedDocs }} />
         </div>
 
         <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-theme-xs">
@@ -219,6 +222,14 @@ export default function Dashboard() {
       {/* Main Content Grid: 8/4 balanced columns */}
       <div className="grid grid-cols-12 gap-6 items-start">
         <div className="col-span-12 space-y-6 xl:col-span-8">
+          <Card
+            title="Tren Dokumen Saya"
+            desc="Jumlah dokumen per bulan (tanggal dokumen), 6 bulan terakhir, menurut tahap persetujuan."
+            actions={<Legend />}
+          >
+            {d ? <MonthlyBars data={d.monthly ?? []} /> : <div className="h-56 animate-pulse rounded-lg bg-gray-50" />}
+          </Card>
+
           <Card
             noPadding
             title="Waiting for My Approval"
@@ -308,6 +319,7 @@ export default function Dashboard() {
                     <th className="px-4 py-3 text-center">Draft / Returned</th>
                     <th className="px-4 py-3 text-center">Pending</th>
                     <th className="px-4 py-3 text-center">Approved / Issued</th>
+                    <th className="hidden px-4 py-3 xl:table-cell">Progress</th>
                     <th className="px-5 py-3 text-right">Total</th>
                   </tr>
                 </thead>
@@ -327,6 +339,7 @@ export default function Dashboard() {
                       <td className="px-4 py-3 text-center text-xs font-medium tabular-nums text-gray-600">{dt.draft}</td>
                       <td className="px-4 py-3 text-center text-xs font-medium tabular-nums text-gray-600">{dt.pending}</td>
                       <td className="px-4 py-3 text-center text-xs font-medium tabular-nums text-gray-600">{dt.approved}</td>
+                      <td className="hidden w-28 px-4 py-3 xl:table-cell"><StatusBar counts={dt} /></td>
                       <td className="px-5 py-3 text-right font-semibold tabular-nums text-gray-900">{dt.total}</td>
                     </tr>
                   ))}
